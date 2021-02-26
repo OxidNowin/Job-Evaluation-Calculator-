@@ -6,10 +6,11 @@ class PostForm(forms.ModelForm):
 	
 	class Meta:
 		model = JobEvaluation
-		fields = ("title", "tech_skills", 
+		fields = ("title", "short_profile", 
+				"tech_skills", 
 				"knowledge", "soft_skills",
 				"around_question", "question_diff",
 				"free_move", "nature", "impact_importance",)
 
 class UnlogicalPostForm(forms.Form):
-	dict = forms.CharField(label="dict")
+	unlogical_result = forms.CharField(label="unlogical_result")

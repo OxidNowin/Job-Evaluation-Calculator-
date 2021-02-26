@@ -17,7 +17,7 @@
 <form method="post">
 	{% csrf_token %}
 	{{ logical_message }}
-	<input id="id_dict" value="{{ jopa }}" type="hidden" name="dict">
+	<input id="id_unlogical_result" value="{{ jopa }}" type="hidden" name="unlogical_result">
 	<a href="{% url 'test' %}">не</a>
 	<input type="submit" value="погнали" name="dict">
 </form>

@@ -13,6 +13,7 @@ def test(request):
 			"""Считывание данных"""
 
 			title = form.cleaned_data['title']
+			short_profile = form.cleaned_data['short_profile']
 			tech_skills = str(form.cleaned_data['tech_skills'].upper())
 			knowledge = str(form.cleaned_data['knowledge'].upper())
 			soft_skills = str(form.cleaned_data['soft_skills'].upper())
@@ -40,7 +41,16 @@ def test(request):
 				return render(request, "evacalc/index.html", {'form': form,
 					'error_message': 'Не соблюден принцип водопада',})				
 
+			"""Проверка на логичность"""
+			result_str = f"{value} {int(value_perc*100)}% {eva_value} {eva_resp}"
+
+			if (logical_1 and logical_2 and logical_3) == False:
+				return render(request, "evacalc/index.html", {'form': form,
+					'logical_message': 'Нелогичность данных. Продолжить?',
+					'jopa': result_str,})				
+
 			jopa = {'title': title,
+					'short_profile':short_profile,
 					'value': value,
 					'логично_1': logical_1,
 					'value_perc': f'{int(value_perc*100)} %',
@@ -49,20 +59,12 @@ def test(request):
 					'логично_3': logical_3,
 					'eva_resp': eva_resp}
 
-			"""Проверка на логичность"""
-
-			if (logical_1 and logical_2 and logical_3) == False:
-				return render(request, "evacalc/index.html", {'form': form,
-					'logical_message': 'Нелогичность данных. Продолжить?',
-					'jopa': jopa,})				
-
-
 			return HttpResponse(jopa.items())
 	elif request.method == "POST" and 'dict' in request.POST:
 		form = UnlogicalPostForm(request.POST)
 		if form.is_valid():
-			arr = form.cleaned_data['dict']
-			return HttpResponse(arr.items())
+			stroka = form.cleaned_data['unlogical_result']
+			return HttpResponse(stroka)
 	else:
 		form = PostForm()	
 	return render(request, "evacalc/index.html", {'form': form})
@@ -138,12 +140,3 @@ def waterfall(tech_skills,around_question, free_move):
 	elif ord(around_question) <= ord(free_move):
 		return False
 	return True
-"""
-def save_unlogical_data(request):
-	if request.method == "POST" and 'dict' in request.POST:
-		form = PostForm(request.POST)
-		if form.is_valid():
-			arr = form.cleaned_data['dict']
-			return HttpResponse(arr.items())
-	return render(request, "evacalc/index.html", {'form': form})
-"""
