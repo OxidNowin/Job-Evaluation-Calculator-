@@ -58,7 +58,24 @@ def test(request):
 					'eva_value': eva_value,
 					'логично_3': logical_3,
 					'eva_resp': eva_resp}
-
+			j = JobEvaluation(
+				title = title,
+				user = request.user,
+				short_profile = short_profile,
+				tech_skills = tech_skills,
+				knowledge = knowledge,
+				soft_skills = soft_skills,
+				value = value,
+				around_question = around_question, 
+				question_diff = question_diff,
+				value_perc = value_perc,
+				eva_value = eva_value,
+				free_move = free_move,
+				nature = nature,
+				impact_importance = impact_importance, 
+				eva_resp = eva_resp,
+				sum_of_values = value + eva_value + eva_resp)
+			#j.save()
 			return HttpResponse(jopa.items())
 	elif request.method == "POST" and 'dict' in request.POST:
 		form = UnlogicalPostForm(request.POST)
