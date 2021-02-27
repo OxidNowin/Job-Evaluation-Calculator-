@@ -8,7 +8,7 @@
 	{{ error_message }}
 	{% endif %}
 	{{ form.as_p }}
-	<input type="submit" value="submit" name="first">
+	<input type="submit" value="submit" name="logical_post">
 </form>
 {% for key,value in jopa.items %}
 {{key}} = {{ value }}
@@ -19,7 +19,7 @@
 	{{ logical_message }}
 	<input id="id_unlogical_result" value="{{ jopa }}" type="hidden" name="unlogical_result">
 	<a href="{% url 'test' %}">не</a>
-	<input type="submit" value="погнали" name="dict">
+	<input type="submit" value="погнали" name="unlogical_post">
 </form>
 {% endif %}
 {% endblock %}
