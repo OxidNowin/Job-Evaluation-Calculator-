@@ -1,25 +1,77 @@
 {% extends "base.html" %}
-
+{% block title %}Оценка должности{% endblock %}
+{% load staticfiles %}
 {% block content %}
 
-<form method="post">
-	{% csrf_token %}
-	{% if error_message %}
-	{{ error_message }}
-	{% endif %}
-	{{ form.as_p }}
-	<input type="submit" value="submit" name="logical_post">
-</form>
-{% for key,value in jopa.items %}
-{{key}} = {{ value }}
-{% endfor %}
-{% if logical_message %}
-<form method="post">
-	{% csrf_token %}
-	{{ logical_message }}
-	<input id="id_unlogical_result" value="{{ jopa }}" type="hidden" name="unlogical_result">
-	<a href="{% url 'test' %}">не</a>
-	<input type="submit" value="погнали" name="unlogical_post">
-</form>
-{% endif %}
+{% include "include/header.html" %}
+
+
+<main>
+      <section class="hr">
+        <div class="container hr__container">
+          <form action="" class="hr__form" method="POST">
+            {% csrf_token %}
+            {% if logical_message %}
+            {{ logical_message }}
+            {% endif %}
+            {% if error_message %}
+            {{ error_message }}
+            {% endif %}
+            <div class="hr__title">
+              <input type="text" class="hr__input" id="id_title" name="title">
+              <div class="select select-profile">
+                {{ form.short_profile }}
+              </div>
+            </div>
+            <div class="hr__form-wrpapper">
+              <div class="hr__form-knowledge">
+                <h2 class="hr__form-title">Знания и навыки</h2>
+                <h3 class="select-title">Практические/ <br> Технические знания</h3>
+                <div class="select">
+                  {{ form.tech_skills }}
+                </div>
+                <h3 class="select-title">Управленческие <br> знания</h3>
+                <div class="select">
+                  {{ form.knowledge }}
+                </div>
+                <h3 class="select-title">Навыки общения и <br> воздействия</h3>
+                <div class="select">
+                  {{ form.soft_skills }}
+                </div>
+              </div>
+              <div class="hr__form-solving">
+                <h2 class="hr__form-title">Решение проблем</h2>
+                <h3 class="select-title">Область решаемых <br> вопросов</h3>
+                <div class="select">
+                  {{ form.around_question }}
+                </div>
+                <h3 class="select-title">Сложность решаемых <br> вопросов</h3>
+                <div class="select">
+                  {{ form.question_diff }}
+                </div>
+              </div>
+              <div class="hr__form-responsibility">
+                <h2 class="hr__form-title">Ответственность</h2>
+                <h3 class="select-title">Свобода <br> действий</h3>
+                <div class="select">
+                  {{ form.free_move }}
+                </div>
+                <h3 class="select-title">Природа <br> воздействия</h3>
+                <div class="select">
+                  {{ form.nature }}
+                </div>
+                <h3 class="select-title">Важность <br> воздействия</h3>
+                <div class="select">
+                  {{ form.impact_importance }}
+                </div>
+              </div>
+            </div>
+            <input type="submit" class="typical__button hr__form-button" name="logical_post">
+          </form>
+        </div>
+      </section>
+</main>
+
+{% include "include/footer.html" %}
+<script src="{% static 'js/script.js' %}" charset="utf-8"></script>
 {% endblock %}

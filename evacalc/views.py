@@ -1,18 +1,25 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 
 from .models import JobEvaluation
 from .forms import PostForm, UnlogicalPostForm
 from .arrays import skills_arr, responsibility_arr, probl_solv_arr, check_arr, grade_arr
 
-def test(request):
+
+@login_required
+def result(request):
+	return render(request, 'evacalc/result.html')
+
+@login_required
+def index(request):
 	if request.method == "POST" and 'logical_post' in request.POST:
 		form = PostForm(request.POST)
 		if form.is_valid():
 
 			"""Считывание данных"""
 
-			title = form.cleaned_data['title']
+			title = form.cleaned_data['title'].title()
 			short_profile = form.cleaned_data['short_profile']
 			tech_skills = str(form.cleaned_data['tech_skills'].upper())
 			knowledge = str(form.cleaned_data['knowledge'].upper())
@@ -49,7 +56,7 @@ def test(request):
 
 			"""Проверка на логичность"""
 
-			if (logical_1 and logical_2 and logical_3) == False:
+			if (logical_1 and logical_2 and logical_3):
 				return render(request, "evacalc/index.html", {'form': form,
 					'logical_message': 'Нелогичность данных. Продолжить?',
 					'jopa': result_str,})				
@@ -83,8 +90,7 @@ def test(request):
 				eva_resp = eva_resp,
 				sum_of_values = value + eva_value + eva_resp)
 			j.save()"""
-			return HttpResponse(jopa.items())
-
+			return render(request, 'evacalc/result.html', {'jopa':jopa})	
 	elif request.method == "POST" and 'unlogical_post' in request.POST:
 		form = UnlogicalPostForm(request.POST)
 		if form.is_valid():
@@ -138,7 +144,7 @@ def union_skills_and_solving(value, value_perc):
 				if str(arr[3]) == "0":
 					logical_3 = False
 				return int(arr[2]), logical_3
-	return None
+	return None, None
 
 def responsibility(free_move, nature, impact_importance):
 
