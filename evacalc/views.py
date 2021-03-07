@@ -1,11 +1,11 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 
 from .models import JobEvaluation
 from .forms import PostForm, UnlogicalPostForm
-from .arrays import skills_arr, responsibility_arr, probl_solv_arr, check_arr, grade_arr
-
+from .arrays import skills_arr, responsibility_arr, problems_solving_arr, union_arr, grade_arr
 
 @login_required
 def result(request):
@@ -21,132 +21,132 @@ def index(request):
 
 			title = form.cleaned_data['title'].title()
 			short_profile = form.cleaned_data['short_profile']
-			tech_skills = str(form.cleaned_data['tech_skills'].upper())
+			hard_skills = str(form.cleaned_data['hard_skills'].upper())
 			knowledge = str(form.cleaned_data['knowledge'].upper())
 			soft_skills = str(form.cleaned_data['soft_skills'].upper())
 			around_question = str(form.cleaned_data['around_question'].upper())
-			question_diff = str(form.cleaned_data['question_diff'].upper())
-			free_move = str(form.cleaned_data['free_move'].upper())
-			nature = str(form.cleaned_data['nature'].upper())
+			question_complexity = str(form.cleaned_data['question_complexity'].upper())
+			freedom_action = str(form.cleaned_data['freedom_action'].upper())
+			nature_impact = str(form.cleaned_data['nature_impact'].upper())
 			impact_importance = str(form.cleaned_data['impact_importance'].upper())
 
 			"""Вычисления"""
 
-			value, logical_1 = ski_and_kno(tech_skills, knowledge, soft_skills)
-			value_perc, logical_2 = troubles_sol(around_question, question_diff)
-			eva_value, logical_3 = union_skills_and_solving(value, value_perc)
-			eva_resp = responsibility(free_move, nature, impact_importance)
+			value_of_skills_section, is_skills_section_logical = compute_skills_section(hard_skills, knowledge, soft_skills)
+			value_of_problems_section, is_problems_section_logical = compute_problems_section(around_question, question_complexity)
+			value_of_union_section, is_union_of_sections_logical = compute_union_skills_and_problems(value_of_skills_section, value_of_problems_section)
+			value_of_responsibility_section = compute_responsibility_section(freedom_action, nature_impact, impact_importance)
 
 			"""Проверка на ненахождение соответствия"""
 
-			if none_check(value, value_perc, eva_value, eva_resp) == False:
+			if is_none(value_of_skills_section, value_of_problems_section, value_of_union_section, value_of_responsibility_section):
 				return render(request, "evacalc/index.html", {'form': form,
 					'error_message': 'Неккоректно ввели значения',})
 
-			"""Проверка на ВОДОПАД"""
+			""" Суммирование значений """
 
-			if waterfall_check(tech_skills, around_question, free_move) == False:
-				return render(request, "evacalc/index.html", {'form': form,
-					'error_message': 'Не соблюден принцип водопада',})				
-
-			sum_of_values = value + eva_value + eva_resp
+			sum_of_values = value_of_skills_section + value_of_union_section + value_of_responsibility_section
 			grade = grade_determine(sum_of_values)
 
-			result_str = f"{value} {int(value_perc*100)}% {eva_value} {eva_resp}  summa:{sum_of_values} grade:{grade}"
-
-			"""Проверка на логичность"""
-
-			if (logical_1 and logical_2 and logical_3):
-				return render(request, "evacalc/index.html", {'form': form,
-					'logical_message': 'Нелогичность данных. Продолжить?',
-					'jopa': result_str,})				
+			result_str = f"{value_of_skills_section} {int(value_of_problems_section*100)}% {value_of_union_section} {value_of_responsibility_section}  summa:{sum_of_values} grade:{grade}"
 
 			jopa = {'title': title,
 					'short_profile':short_profile,
-					'value': value,
-					'логично_1': logical_1,
-					'value_perc': f'{int(value_perc*100)} %',
-					'логично_2': logical_2,
-					'eva_value': eva_value,
-					'логично_3': logical_3,
-					'eva_resp': eva_resp,
+					'value_of_skills_section': value_of_skills_section,
+					'логично_1': is_skills_section_logical,
+					'value_of_problems_section': f'{int(value_of_problems_section*100)} %',
+					'логично_2': is_problems_section_logical,
+					'value_of_union_section': value_of_union_section,
+					'логично_3': is_union_of_sections_logical,
+					'value_of_responsibility_section': value_of_responsibility_section,
 					'sum_of_values': sum_of_values,
 					'grade': grade}
-			"""j = JobEvaluation(
+
+			"""Проверка на логичность"""
+
+			if (is_skills_section_logical and is_problems_section_logical and is_union_of_sections_logical) == False:
+				return render(request, "evacalc/index.html", {'form': form,
+					'logical_message': 'Нелогичность данных. Продолжить?',
+					'jopa': jopa})
+
+"""			j = JobEvaluation(
 				title = title,
 				user = request.user,
 				short_profile = short_profile,
-				tech_skills = tech_skills,
+				hard_skills = hard_skills,
 				knowledge = knowledge,
 				soft_skills = soft_skills,
-				value = value,
-				around_question = around_question, 
-				question_diff = question_diff,
-				value_perc = value_perc,
-				eva_value = eva_value,
-				free_move = free_move,
-				nature = nature,
-				impact_importance = impact_importance, 
-				eva_resp = eva_resp,
-				sum_of_values = value + eva_value + eva_resp)
+				value_of_skills_section = value_of_skills_section,
+				around_question = around_question,
+				question_complexity = question_complexity,
+				value_of_problems_section = value_of_problems_section,
+				value_of_union_section = value_of_union_section,
+				freedom_action = freedom_action,
+				nature_impact = nature_impact,
+				impact_importance = impact_importance,
+				value_of_responsibility_section = value_of_responsibility_section,
+				sum_of_values = value_of_skills_section + value_of_union_section + value_of_responsibility_section,
+				grade = grade)
 			j.save()"""
-			return render(request, 'evacalc/result.html', {'jopa':jopa})	
+			return render(request, 'evacalc/result.html', {'jopa':jopa})
+		else:
+			return render(request, 'evacalc/index.html',{'error_message':'Не указали наименование должности'})
 	elif request.method == "POST" and 'unlogical_post' in request.POST:
 		form = UnlogicalPostForm(request.POST)
 		if form.is_valid():
 			stroka = form.cleaned_data['unlogical_result']
 			return HttpResponse(stroka)
 	else:
-		form = PostForm()	
+		form = PostForm()
 	return render(request, "evacalc/index.html", {'form': form})
 
-def ski_and_kno(tech_skills, knowledge, soft_skills):
-	
+def compute_skills_section(hard_skills, knowledge, soft_skills):
+
 	"""
 	Практические занятия
 	Управленческие знания
 	Навыки взаимодействия
 	"""
-	logical_1 = True
-	
+	is_skills_section_logical = True
+
 	for arr in skills_arr:
-		if str(arr[0]) == tech_skills:
+		if str(arr[0]) == hard_skills:
 			if str(arr[1]) == knowledge:
 				if str(arr[2]) == soft_skills:
 					if str(arr[4]) == "0":
-						logical_1 = False
-					return int(arr[3]), logical_1
+						is_skills_section_logical = False
+					return int(arr[3]), is_skills_section_logical
 	return None, None
 
-def troubles_sol(around_question, question_diff):
+def compute_problems_section(around_question, question_complexity):
 
 	"""
 	Область решаемых вопросов
 	Сложность вопросов
 	"""
-	logical_2 = True
+	is_problems_section_logical = True
 
-	for arr in probl_solv_arr:
+	for arr in problems_solving_arr:
 		if str(arr[0]) == around_question:
-			if str(arr[1]) == question_diff:
+			if str(arr[1]) == question_complexity:
 				if str(arr[3]) == "0":
-					logical_2 = False
-				return float(arr[2]), logical_2
+					is_problems_section_logical = False
+				return float(arr[2]), is_problems_section_logical
 	return None, None
 
-def union_skills_and_solving(value, value_perc):
+def compute_union_skills_and_problems(value_of_skills_section, value_of_problems_section):
 
-	logical_3 = True
+	is_union_of_sections_logical = True
 
-	for arr in check_arr:
-		if str(arr[0]) == str(value_perc):
-			if str(arr[1]) == str(value):
+	for arr in union_arr:
+		if str(arr[0]) == str(value_of_problems_section):
+			if str(arr[1]) == str(value_of_skills_section):
 				if str(arr[3]) == "0":
-					logical_3 = False
-				return int(arr[2]), logical_3
+					is_union_of_sections_logical = False
+				return int(arr[2]), is_union_of_sections_logical
 	return None, None
 
-def responsibility(free_move, nature, impact_importance):
+def compute_responsibility_section(freedom_action, nature_impact, impact_importance):
 
 	"""
 	Свобода действий
@@ -155,8 +155,8 @@ def responsibility(free_move, nature, impact_importance):
 	"""
 
 	for arr in responsibility_arr:
-		if str(arr[0]) == free_move:
-			if str(arr[1]) == nature:
+		if str(arr[0]) == freedom_action:
+			if str(arr[1]) == nature_impact:
 				if str(arr[2]) == impact_importance:
 					return int(arr[3])
 	return None
@@ -165,16 +165,9 @@ def grade_determine(sum_of_values):
 	for summ in grade_arr:
 		if (sum_of_values<=summ[2]) and (sum_of_values>=summ[1]):
 			return summ[0]
-	return None 
+	return None
 
-def none_check(value, value_perc, eva_value, eva_resp):
-	if (value == None) or (value_perc == None) or (eva_value == None) or (eva_resp == None):
-		return False
-	return True
-
-def waterfall_check(tech_skills,around_question, free_move):
-	if ord(tech_skills) < ord(around_question):
-		return False
-	elif ord(around_question) < ord(free_move):
-		return False
-	return True
+def is_none(value_of_skills_section, value_of_problems_section, value_of_union_section, value_of_responsibility_section):
+	if (value_of_skills_section == None) or (value_of_problems_section == None) or (value_of_union_section == None) or (value_of_responsibility_section == None):
+		return True
+	return False

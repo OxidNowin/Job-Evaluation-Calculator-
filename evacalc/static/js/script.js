@@ -1,4 +1,4 @@
-document.getElementById("id_tech_skills").addEventListener("change", function() {
+document.getElementById("id_hard_skills").addEventListener("change", function() {
   let sel = document.getElementById('id_around_question');
   let options = [...sel.options];
   
@@ -15,7 +15,7 @@ document.getElementById("id_tech_skills").addEventListener("change", function() 
 });
   
 document.getElementById("id_around_question").addEventListener("change", function() {
-  let sel = document.getElementById('id_free_move');
+  let sel = document.getElementById('id_freedom_action');
   let options = [...sel.options];
     
   options.forEach(elem => elem.removeAttribute("disabled"))
@@ -30,8 +30,8 @@ document.getElementById("id_around_question").addEventListener("change", functio
     
 });
   
-document.getElementById("id_tech_skills").addEventListener("change", function() {
-  let sel = document.getElementById('id_free_move');
+document.getElementById("id_hard_skills").addEventListener("change", function() {
+  let sel = document.getElementById('id_freedom_action');
   let options = [...sel.options];
     
   options.forEach(elem => elem.removeAttribute("disabled"))
@@ -46,7 +46,7 @@ document.getElementById("id_tech_skills").addEventListener("change", function() 
     
 });
 
-document.getElementById("id_nature").addEventListener("change", function() {
+document.getElementById("id_nature_impact").addEventListener("change", function() {
   let sel = document.getElementById('id_impact_importance');
   let options = [...sel.options];
   

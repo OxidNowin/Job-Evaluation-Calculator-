@@ -7,7 +7,7 @@ profile_choices=[('','Краткий профиль'),
 				('A2','A2'),('A3','A3'),
 				('A4','A4')]
 
-tech_skills_choices=[('-','-'),
+hard_skills_choices=[('-','-'),
 					('A','A'),('B','B'),
 					('C','C'),('D','D'),
 					('E','E'),('F','F'),
@@ -26,18 +26,18 @@ around_question_choices=[('-','-'),
 						('E','E'),('F','F'),
 						('G','G'),('H','H')]
 
-question_diff_choices=[('-','-'),
+question_complexity_choices=[('-','-'),
 					('1','1'),('2','2'),
 					('3','3'),('4','4'),
 					('5','5')]
 
-free_move_choices=[('-','-'),
+freedom_action_choices=[('-','-'),
 					('A','A'),('B','B'),
 					('C','C'),('D','D'),
 					('E','E'),('F','F'),
 					('G','G'),('H','H')]
 
-nature_choices=[('-','-'),('N','N'),
+nature_impact_choices=[('-','-'),('N','N'),
 				('1','1'),('2','2'),
 				('3','3'),('4','4'),]
 
@@ -51,13 +51,13 @@ impact_importance_choices=[('-','-'),
 class PostForm(forms.Form):
 	title = forms.CharField(max_length=25)
 	short_profile = forms.ChoiceField(widget=forms.Select,choices=profile_choices) 
-	tech_skills = forms.ChoiceField(widget=forms.Select,choices=tech_skills_choices)
+	hard_skills = forms.ChoiceField(widget=forms.Select,choices=hard_skills_choices)
 	knowledge = forms.ChoiceField(widget=forms.Select,choices=knowledge_choices)
 	soft_skills = forms.ChoiceField(widget=forms.Select,choices=soft_skills_choices)
 	around_question = forms.ChoiceField(widget=forms.Select,choices=around_question_choices)
-	question_diff = forms.ChoiceField(widget=forms.Select,choices=question_diff_choices)
-	free_move = forms.ChoiceField(widget=forms.Select,choices=free_move_choices)
-	nature = forms.ChoiceField(widget=forms.Select,choices=nature_choices)
+	question_complexity = forms.ChoiceField(widget=forms.Select,choices=question_complexity_choices)
+	freedom_action = forms.ChoiceField(widget=forms.Select,choices=freedom_action_choices)
+	nature_impact = forms.ChoiceField(widget=forms.Select,choices=nature_impact_choices)
 	impact_importance = forms.ChoiceField(widget=forms.Select,choices=impact_importance_choices)
 
 class UnlogicalPostForm(forms.Form):
