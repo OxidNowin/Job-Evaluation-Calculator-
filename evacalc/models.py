@@ -4,7 +4,7 @@ from django.utils import timezone
 class JobEvaluation(models.Model):
 	user = models.ForeignKey('account.MyUser', on_delete=models.CASCADE)
 	title = models.CharField("Название должности",max_length=25)
-	short_profile = models.CharField("Краткий профиль",max_length=2, default="")
+	short_profile = models.CharField("Краткий профиль",max_length=2)
 	created_date = models.DateTimeField(default=timezone.now)
 	hard_skills = models.CharField("Практические знания", max_length=1)
 	knowledge = models.CharField("Управленческие знания", max_length=2)

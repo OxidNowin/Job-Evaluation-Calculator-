@@ -18,7 +18,11 @@
             {{ error_message }}
             {% endif %}
             <div class="hr__title">
-              <input type="text" class="hr__input" id="id_title" name="title">
+              {% if overstimate %}
+              <input type="text" class="hr__input" id="id_title" name="title" placeholder="Введите название должности" value="{{ overstimate.title }}">
+              {% else %}
+              <input type="text" class="hr__input" id="id_title" name="title" placeholder="Введите название должности">
+              {% endif %}
               <div class="select select-profile">
                 {{ form.short_profile }}
               </div>

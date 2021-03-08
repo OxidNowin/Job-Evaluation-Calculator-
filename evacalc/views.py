@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
@@ -7,9 +7,22 @@ from .models import JobEvaluation
 from .forms import PostForm, UnlogicalPostForm
 from .arrays import skills_arr, responsibility_arr, problems_solving_arr, union_arr, grade_arr
 
+from openpyxl import Workbook
+from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font, GradientFill
+
 @login_required
 def result(request):
 	return render(request, 'evacalc/result.html')
+
+@login_required
+def archive(request):
+	if request.method == "POST":
+		job_dict = request.POST
+		job_title = list(job_dict.values())[1]
+		delete_job_evaluation(job_title)
+	jobs_list = JobEvaluation.objects.order_by('-created_date').filter(user=request.user)
+	context = {'jobs_list': jobs_list}
+	return render(request, 'evacalc/archive.html', context)
 
 @login_required
 def index(request):
@@ -41,7 +54,11 @@ def index(request):
 
 			if is_none(value_of_skills_section, value_of_problems_section, value_of_union_section, value_of_responsibility_section):
 				return render(request, "evacalc/index.html", {'form': form,
-					'error_message': 'Неккоректно ввели значения',})
+															'error_message': 'Неккоректно ввели значения',})
+
+			if is_waterfall_principle(hard_skills, around_question, freedom_action) == False:
+				return render(request, "evacalc/index.html", {'form': form,
+															'error_message': 'Не соблюден принцип водопада',})	
 
 			""" Суммирование значений """
 
@@ -62,14 +79,14 @@ def index(request):
 					'sum_of_values': sum_of_values,
 					'grade': grade}
 
-			"""Проверка на логичность"""
+			"""Проверка на логичность
 
 			if (is_skills_section_logical and is_problems_section_logical and is_union_of_sections_logical) == False:
 				return render(request, "evacalc/index.html", {'form': form,
-					'logical_message': 'Нелогичность данных. Продолжить?',
-					'jopa': jopa})
-
-"""			j = JobEvaluation(
+															'logical_message': 'Нелогичность данных. Продолжить?',
+															'jopa': jopa})
+															"""
+			job_evaluation_save = JobEvaluation(
 				title = title,
 				user = request.user,
 				short_profile = short_profile,
@@ -87,10 +104,11 @@ def index(request):
 				value_of_responsibility_section = value_of_responsibility_section,
 				sum_of_values = value_of_skills_section + value_of_union_section + value_of_responsibility_section,
 				grade = grade)
-			j.save()"""
+			job_evaluation_save.save()
 			return render(request, 'evacalc/result.html', {'jopa':jopa})
 		else:
-			return render(request, 'evacalc/index.html',{'error_message':'Не указали наименование должности'})
+			return render(request, 'evacalc/index.html',{'form':form,
+														'error_message':'Не указали наименование должности'})
 	elif request.method == "POST" and 'unlogical_post' in request.POST:
 		form = UnlogicalPostForm(request.POST)
 		if form.is_valid():
@@ -171,3 +189,92 @@ def is_none(value_of_skills_section, value_of_problems_section, value_of_union_s
 	if (value_of_skills_section == None) or (value_of_problems_section == None) or (value_of_union_section == None) or (value_of_responsibility_section == None):
 		return True
 	return False
+
+def is_waterfall_principle(hard_skills,around_question, freedom_action):
+	if ord(hard_skills) < ord(around_question):
+		return False
+	elif ord(around_question) < ord(freedom_action):
+		return False
+	return True
+
+def delete_job_evaluation(title):
+	job_name = JobEvaluation.objects.get(title=title)
+	job_name.delete()
+	return redirect('archive')
+
+def create_xl(request):
+	jobs_arr = JobEvaluation.objects.filter(user=request.user)
+	wb = Workbook()
+	filename = f"{requset.user}JobEvaluation.xlsx"
+	ws = wb.active
+	ws.title = "Должности"
+
+	""" Заголовок """
+
+	ws.merge_cells('B1:Z2')
+	ws['B1'] = "Калькулятор оценки должностей EPSI Rating"
+	thin = Side(border_style="thin", color="000000")
+	ws['B1'].border = Border(top=thin, left=thin, right=thin, bottom=thin)
+	ws['B1'].fill = PatternFill("solid", fgColor="DDDDDD")
+	ws['B1'].font  = Font(name='TimesNewRoman', size=22, b=True, color="FF0000")
+	ws['B1'].alignment = Alignment(horizontal="center", vertical="center")
+
+	""" Заголовки ячеек """
+
+	letter_numb = 65
+	for _ in range(13):
+		ws.merge_cells(f'{chr(letter_numb)}3:{chr(letter_numb+1)}4')
+		letter_numb += 2
+	ws.merge_cells('AA3:AA4')
+	ws['A3'] = "Название должности"
+	ws['C3'] = "Краткий профиль"
+	ws['E3'] = "Практические знания"
+	ws['G3'] = "Управленческие знания"
+	ws['I3'] = "Навыки общения"
+	ws['K3'] = "Пункт оценки"
+	ws['M3'] = "Область вопросов"
+	ws['O3'] = "Сложность вопросов"
+	ws['Q3'] = "Значение в %"
+	ws['S3'] = "Свобода действий"
+	ws['U3'] = "Природа воздействия"
+	ws['W3'] = "Важность воздействия"
+	ws['Y3'] = "Пункты оценки"
+	ws['AA3'] = "Грейд"
+	letter_numb = 65
+	for i in range(13):
+		xl_title = ws[f'{chr(letter_numb)}3']
+		if i % 2 == 0:
+			bg_color = "E41717"
+		else:
+			bg_color = "B32D2D"
+		xl_title.border = Border(top=thin, left=thin, right=thin, bottom=thin)
+		xl_title.fill = PatternFill("solid", fgColor=bg_color)
+		xl_title.font  = Font(name='TimesNewRoman', size=14, b=True, color="000000")
+		xl_title.alignment = Alignment(horizontal="center", wrap_text=True,vertical="center")
+		letter_numb += 2
+	last_cell = ws['AA3']
+	last_cell.border = Border(top=thin, left=thin, right=thin, bottom=thin)
+	last_cell.fill = PatternFill("solid", fgColor="B32D2D")
+	last_cell.font  = Font(name='TimesNewRoman', size=14, b=True, color="000000")
+	last_cell.alignment = Alignment(horizontal="center", wrap_text=True,vertical="center")
+
+	""" Значения """
+
+	row_number = 5
+	for each in jobs_arr:
+		letter_numb = 65
+		for i in range(13):
+			cell = ws[f'{chr(letter_numb)}{row_number}']
+			ws.merge_cells(f'{chr(letter_numb)}{row_number}:{chr(letter_numb+1)}{row_number}')
+			ws[f'{chr(letter_numb)}{row_number}'] = each[i]
+			cell.border = Border(top=thin, left=thin, right=thin, bottom=thin)
+			cell.font  = Font(name='TimesNewRoman', size=12, b=True, color="000000")
+			cell.alignment = Alignment(horizontal="center", vertical="center")
+			letter_numb += 2
+		last_cell = ws[f"AA{row_number}"]
+		ws[f"AA{row_number}"] = each[-1]
+		last_cell.border = Border(top=thin, left=thin, right=thin, bottom=thin)
+		last_cell.font  = Font(name='TimesNewRoman', size=12, b=True, color="000000")
+		last_cell.alignment = Alignment(horizontal="center", vertical="center")
+		row_number += 1
+	wb.save(filename = filename)

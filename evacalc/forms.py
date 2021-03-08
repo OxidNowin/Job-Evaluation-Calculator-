@@ -7,41 +7,41 @@ profile_choices=[('','Краткий профиль'),
 				('A2','A2'),('A3','A3'),
 				('A4','A4')]
 
-hard_skills_choices=[('-','-'),
+hard_skills_choices=[('','-'),
 					('A','A'),('B','B'),
 					('C','C'),('D','D'),
 					('E','E'),('F','F'),
 					('G','G'),('H','H')]
 
-knowledge_choices=[('-','-'),('T','T'),
+knowledge_choices=[('','-'),('T','T'),
 					('I','I'),('II','II'),
 					('III','III'),('IV','IV')]
 
-soft_skills_choices=[('-','-'),('1','1'),
+soft_skills_choices=[('','-'),('1','1'),
 					('2','2'),('3','3')]
 
-around_question_choices=[('-','-'),
+around_question_choices=[('','-'),
 						('A','A'),('B','B'),
 						('C','C'),('D','D'),
 						('E','E'),('F','F'),
 						('G','G'),('H','H')]
 
-question_complexity_choices=[('-','-'),
+question_complexity_choices=[('','-'),
 					('1','1'),('2','2'),
 					('3','3'),('4','4'),
 					('5','5')]
 
-freedom_action_choices=[('-','-'),
+freedom_action_choices=[('','-'),
 					('A','A'),('B','B'),
 					('C','C'),('D','D'),
 					('E','E'),('F','F'),
 					('G','G'),('H','H')]
 
-nature_impact_choices=[('-','-'),('N','N'),
+nature_impact_choices=[('','-'),('N','N'),
 				('1','1'),('2','2'),
 				('3','3'),('4','4'),]
 
-impact_importance_choices=[('-','-'),
+impact_importance_choices=[('','-'),
 						('R','R'),('C','C'),
 						('S','S'),('P','P'),
 						('I','I'),
