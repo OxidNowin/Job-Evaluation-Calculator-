@@ -9,6 +9,9 @@
       <section class="prof">
         <div class="container prof__container">
           {% if jobs_list %}
+          <a href="" download="{% url 'get_file' %}">Скочать</a>
+          <a href="{% url 'archive_grade' %}">отсортировать по грейду</a>
+          <a href="{% url 'archive_date' %}">отсортировать по дате</a>
           <ul class="prof__list">
             {% for job in jobs_list %}
             <li class="prof__item">

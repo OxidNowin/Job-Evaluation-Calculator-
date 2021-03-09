@@ -15,12 +15,24 @@ def result(request):
 	return render(request, 'evacalc/result.html')
 
 @login_required
-def archive(request):
+def archive_date(request):
 	if request.method == "POST":
 		job_dict = request.POST
 		job_title = list(job_dict.values())[1]
-		delete_job_evaluation(job_title)
+		redirect_str = "archive_date"
+		delete_job_evaluation(job_title,redirect_str)
 	jobs_list = JobEvaluation.objects.order_by('-created_date').filter(user=request.user)
+	context = {'jobs_list': jobs_list}
+	return render(request, 'evacalc/archive.html', context)
+
+@login_required
+def archive_grade(request):
+	if request.method == "POST":
+		job_dict = request.POST
+		job_title = list(job_dict.values())[1]
+		redirect_str = "archive_grade"
+		delete_job_evaluation(job_title,redirect_str)
+	jobs_list = JobEvaluation.objects.order_by('-grade').filter(user=request.user)
 	context = {'jobs_list': jobs_list}
 	return render(request, 'evacalc/archive.html', context)
 
@@ -197,15 +209,34 @@ def is_waterfall_principle(hard_skills,around_question, freedom_action):
 		return False
 	return True
 
-def delete_job_evaluation(title):
+def delete_job_evaluation(title, redirect_str):
 	job_name = JobEvaluation.objects.get(title=title)
 	job_name.delete()
-	return redirect('archive')
+	return redirect(redirect_str)
 
 def create_xl(request):
-	jobs_arr = JobEvaluation.objects.filter(user=request.user)
+	jobs_dicts = list(JobEvaluation.objects.filter(user=request.user).values())
+	filename = f'{request.user}JobEvaluation.xlsx'
+	jobs_arr = []
+	for dict in jobs_dicts:
+		jobs_arr.append([])
+		jobs_arr[-1].append(dict['title'])
+		jobs_arr[-1].append(dict['short_profile'])
+		jobs_arr[-1].append(dict['hard_skills'])
+		jobs_arr[-1].append(dict['knowledge'])
+		jobs_arr[-1].append(dict['soft_skills'])
+		jobs_arr[-1].append(dict['value_of_skills_section'])
+		jobs_arr[-1].append(dict['around_question'])
+		jobs_arr[-1].append(dict['question_complexity'])
+		jobs_arr[-1].append(dict['value_of_problems_section'])
+		jobs_arr[-1].append(dict['value_of_union_section'])
+		jobs_arr[-1].append(dict['freedom_action'])
+		jobs_arr[-1].append(dict['nature_impact'])
+		jobs_arr[-1].append(dict['impact_importance'])
+		jobs_arr[-1].append(dict['value_of_responsibility_section'])
+		jobs_arr[-1].append(dict['sum_of_values'])
+		jobs_arr[-1].append(dict['grade'])
 	wb = Workbook()
-	filename = f"{requset.user}JobEvaluation.xlsx"
 	ws = wb.active
 	ws.title = "Должности"
 
@@ -277,4 +308,18 @@ def create_xl(request):
 		last_cell.font  = Font(name='TimesNewRoman', size=12, b=True, color="000000")
 		last_cell.alignment = Alignment(horizontal="center", vertical="center")
 		row_number += 1
-	wb.save(filename = filename)
+	wb.save(filename=filename)
+
+import os
+from django.conf import settings
+from django.http import Http404
+from django.http import FileResponse
+
+def get_file(request):
+	create_xl(request)
+	file_path = f'~/pisya/jec/admin@admin.ruJobEvaluation.xlsx'
+	#file_path = os.path.join(settings.MEDIA_ROOT, path)
+	if os.path.exists(file_path):
+		response = FileResponse(open(file_path, 'rb'))
+		return response
+	raise Http404
