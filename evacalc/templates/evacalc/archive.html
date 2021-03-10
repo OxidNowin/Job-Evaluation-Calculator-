@@ -9,9 +9,10 @@
       <section class="prof">
         <div class="container prof__container">
           {% if jobs_list %}
-          <a href="" download="{% url 'get_file' %}">Скочать</a>
-          <a href="{% url 'archive_grade' %}">отсортировать по грейду</a>
-          <a href="{% url 'archive_date' %}">отсортировать по дате</a>
+          <div class="prof__filters">
+            <a href="{% url 'archive_grade' %}" class="prof__filters-graid">Отсортировать по грейду</a>
+            <a href="{% url 'archive_date' %}" class="prof__filters-date">Отсортировать по дате</a>
+          </div>
           <ul class="prof__list">
             {% for job in jobs_list %}
             <li class="prof__item">
@@ -44,6 +45,7 @@
             </li>
             {% endfor %} 
           </ul>
+          <a href="" download="{% url 'get_file' %}" class="typical__button prof__download-button">Скачать</a>
           {% else %}
           У вас нет оцененных должностей
           {% endif %}

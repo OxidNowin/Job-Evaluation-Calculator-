@@ -2,6 +2,7 @@
 
 .prof__container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
@@ -46,4 +47,39 @@
 
 .prof__sub-item:not(:last-child) {
   margin-right: 15px;
+}
+
+.prof__filters {
+  margin-bottom: 50px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.prof__download-button {
+  margin-top: 50px;
+}
+
+.prof__filters-graid {
+  text-decoration: none;
+  color: var(--black-color);
+  font-size: 18px;
+  font-weight: 400;
+  margin-right: 10px;
+  transition: color 0.3s ease-in-out;
+}
+
+.prof__filters-graid:hover {
+  color: var(--a-hover);
+}
+
+.prof__filters-date {
+  text-decoration: none;
+  color: var(--black-color);
+  font-size: 18px;
+  font-weight: 400;
+  transition: color 0.3s ease-in-out;
+}
+
+.prof__filters-date:hover {
+  color: var(--a-hover);
 }
