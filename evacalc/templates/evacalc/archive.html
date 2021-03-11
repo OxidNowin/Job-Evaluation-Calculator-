@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Архив вычислений{% endblock %}
+{% block title %}Таблица должностей{% endblock %}
 {% load staticfiles %}
 {% block content %}
 
@@ -24,7 +24,7 @@
                   {{ job.hard_skills }} {{ job.knowledge }} {{ job.soft_skills }} {{ job.value_of_skills_section }}
                 </li>
                 <li class="prof__sub-item">
-                  {{ job.around_question }} {{ job.question_complexity }} {{ job.value_of_problem_section }} {{ job.value_of_union_section }}
+                  {{ job.around_question }} {{ job.question_complexity }} {{ job.value_of_problems_section }}% {{job.value_of_union_section}}
                 </li>
                 <li class="prof__sub-item">
                   {{ job.freedom_action }} {{ job.nature_impact }} {{ job.impact_importance }} {{ job.value_of_responsibility_section }}

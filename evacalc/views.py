@@ -77,27 +77,14 @@ def index(request):
 			sum_of_values = value_of_skills_section + value_of_union_section + value_of_responsibility_section
 			grade = grade_determine(sum_of_values)
 
-			result_str = f"{value_of_skills_section} {int(value_of_problems_section*100)}% {value_of_union_section} {value_of_responsibility_section}  summa:{sum_of_values} grade:{grade}"
+			result_str = f"{request.user} {title} {short_profile} {hard_skills} {knowledge} {soft_skills} {value_of_skills_section} {around_question} {question_complexity} {int(value_of_problems_section*100)} {value_of_union_section} {freedom_action} {nature_impact} {impact_importance} {value_of_responsibility_section} {sum_of_values} {grade}"
 
-			jopa = {'title': title,
-					'short_profile':short_profile,
-					'value_of_skills_section': value_of_skills_section,
-					'логично_1': is_skills_section_logical,
-					'value_of_problems_section': f'{int(value_of_problems_section*100)} %',
-					'логично_2': is_problems_section_logical,
-					'value_of_union_section': value_of_union_section,
-					'логично_3': is_union_of_sections_logical,
-					'value_of_responsibility_section': value_of_responsibility_section,
-					'sum_of_values': sum_of_values,
-					'grade': grade}
-
-			"""Проверка на логичность
+			"""Проверка на логичность"""
 
 			if (is_skills_section_logical and is_problems_section_logical and is_union_of_sections_logical) == False:
 				return render(request, "evacalc/index.html", {'form': form,
 															'logical_message': 'Нелогичность данных. Продолжить?',
-															'jopa': jopa})
-															"""
+															'result_str': result_str})
 			job_evaluation_save = JobEvaluation(
 				title = title,
 				user = request.user,
@@ -108,7 +95,7 @@ def index(request):
 				value_of_skills_section = value_of_skills_section,
 				around_question = around_question,
 				question_complexity = question_complexity,
-				value_of_problems_section = value_of_problems_section,
+				value_of_problems_section = int(value_of_problems_section*100),
 				value_of_union_section = value_of_union_section,
 				freedom_action = freedom_action,
 				nature_impact = nature_impact,
@@ -117,15 +104,40 @@ def index(request):
 				sum_of_values = value_of_skills_section + value_of_union_section + value_of_responsibility_section,
 				grade = grade)
 			job_evaluation_save.save()
-			return render(request, 'evacalc/result.html', {'jopa':jopa})
+			form = PostForm()
+			return render(request, 'evacalc/index.html', {'form':form,
+															'success':result_str})
 		else:
 			return render(request, 'evacalc/index.html',{'form':form,
 														'error_message':'Не указали наименование должности'})
 	elif request.method == "POST" and 'unlogical_post' in request.POST:
 		form = UnlogicalPostForm(request.POST)
 		if form.is_valid():
-			stroka = form.cleaned_data['unlogical_result']
-			return HttpResponse(stroka)
+			result_str = form.cleaned_data['unlogical_result']
+			result_arr = result_str.strip().split()
+			print(result_arr)
+			job_evaluation_save = JobEvaluation(
+				title = result_arr[1],
+				user = request.user,
+				short_profile = result_arr[2],
+				hard_skills = result_arr[3],
+				knowledge = result_arr[4],
+				soft_skills = result_arr[5],
+				value_of_skills_section = result_arr[6],
+				around_question = result_arr[7],
+				question_complexity = result_arr[8],
+				value_of_problems_section = int(result_arr[9]),
+				value_of_union_section = result_arr[10],
+				freedom_action = result_arr[11],
+				nature_impact = result_arr[12],
+				impact_importance = result_arr[13],
+				value_of_responsibility_section = result_arr[14],
+				sum_of_values = result_arr[15],
+				grade = result_arr[16])
+			job_evaluation_save.save()
+			form = PostForm()
+			return render(request, 'evacalc/index.html', {"form":form,
+															'success':result_str})
 	else:
 		form = PostForm()
 	return render(request, "evacalc/index.html", {'form': form})

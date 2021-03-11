@@ -1,7 +1,7 @@
 /* success */
 
 .success-container{
-	display: none;
+	display: flex;
 	position: fixed;
 	width: 100%;
 	height: 100%;
@@ -43,7 +43,7 @@
 
 
 .error-container{
-	display: none;
+	display: flex;
 	position: fixed;
 	width: 100%;
 	height: 100%;
