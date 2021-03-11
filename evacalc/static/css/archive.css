@@ -1,11 +1,13 @@
 /* prof */
 
 .prof__container {
+  padding-top: 20px;
+  padding-bottom: 20px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
 }
 
 .prof__item {
@@ -40,6 +42,7 @@
 .prof__sub-item {
   padding: 10px;
   border: 2px solid var(--black-color);
+  font-size: 22px;
   min-width: 140px;
   min-height: 20px;
   text-align: center;
@@ -51,8 +54,10 @@
 
 .prof__filters {
   margin-bottom: 50px;
+  margin-left: 110px;
   display: flex;
   flex-wrap: wrap;
+  align-self: flex-start;
 }
 
 .prof__download-button {
@@ -82,4 +87,8 @@
 
 .prof__filters-date:hover {
   color: var(--a-hover);
+}
+
+.pros__last {
+  color: var(--red-color);
 }

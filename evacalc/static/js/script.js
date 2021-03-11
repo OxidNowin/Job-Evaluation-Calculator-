@@ -56,3 +56,13 @@ document.getElementById("id_nature_impact").addEventListener("change", function(
   if(this.value == "1" || this.value == "2" || this.value == "3" || this.value == "4") [5,6,7,8].forEach(num => options[num].setAttribute("disabled", true))
   
 });
+
+let seccess = document.querySelector('.success-container');
+
+function hideSeccess() {
+  seccess.classList.add('hide')
+}
+
+document.addEventListener('click', function() {
+  hideSeccess();
+})

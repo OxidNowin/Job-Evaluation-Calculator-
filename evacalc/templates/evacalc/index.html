@@ -3,31 +3,34 @@
 {% load staticfiles %}
 {% block content %}
 
+{% if success %}
+<div class="success-container">
+  <div class="success">
+    <div class="success-svg"></div>
+    <h2 class="success__text">Форма успешно отправлена</h2>
+  </div>
+</div>
+{% endif %}
+{% if logical_message %}
+<div class="error-container">
+  <div class="error">
+    <div class="error-svg"></div>
+    <h2 class="error-text">{{ logical_message }}</h2>
+  <form method="POST">
+    {% csrf_token %}
+    <input id="id_unlogical_result" value="{{ result_str }}" type="hidden" name="unlogical_result">
+    <div class="error__button-wrapper">
+      <a href="{% url 'index' %}" class="error-button typical__button_small">Пересчитать</a>
+      <input type="submit" value="Продолжить" name="unlogical_post" class="typical__button_small">
+    </div>
+  </form>
+  </div>
+</div>
+{% endif %}
+
 {% include "include/header.html" %}
 
 <main>
-  {% if success %}
-  <div class="success-container">
-    <div class="success">
-      <div class="success-svg"></div>
-      <h2 class="success__text">Форма успешно отправлена</h2>
-    </div>
-  </div>
-  {% endif %}
-  {% if logical_message %}
-  <div class="error-container">
-    <div class="error">
-      <div class="error-svg"></div>
-      <h2 class="error-text">{{ logical_message }}</h2>
-    <form method="POST">
-      {% csrf_token %}
-      <input id="id_unlogical_result" value="{{ result_str }}" type="hidden" name="unlogical_result">
-      <a href="{% url 'index' %}">Пересчитать</a>
-      <input type="submit" value="Продолжить" name="unlogical_post">
-    </form>
-    </div>
-  </div>
-  {% endif %}
   <section class="hr">
     <div class="container hr__container">
       <form action="" class="hr__form" method="POST">

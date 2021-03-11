@@ -1,5 +1,9 @@
 /* success */
 
+.hide {
+  display: none !important;
+}
+
 .success-container{
 	display: flex;
 	position: fixed;
@@ -79,6 +83,15 @@
     margin: 0px;
     padding: 0px;
     font-size: 28px;
+  }
+
+  .error__button-wrapper {
+    padding-top: 10px;
+    display: flex;
+  }
+
+  .error-button {
+    margin-right: 10px;
   }
 
 /* hr */
