@@ -57,12 +57,16 @@ document.getElementById("id_nature_impact").addEventListener("change", function(
   
 });
 
-let seccess = document.querySelector('.success-container');
+let success = document.querySelector('.success-container');
 
-function hideSeccess() {
-  seccess.classList.add('hide')
+function hideSuccess() {
+  success.classList.add('hide');
 }
 
-document.addEventListener('click', function() {
-  hideSeccess();
-})
+if (success.classList.contains('success-container')) {
+
+  setTimeout(() => {
+    hideSuccess();
+  }, 1500);
+
+}
