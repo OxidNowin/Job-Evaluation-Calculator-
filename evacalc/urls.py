@@ -9,6 +9,6 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 	path('', views.index, name="index"),
 	path('archive_date/', views.archive_date, name="archive_date"),  
-	path('get_file/', views.get_file, name="get_file"),
+	path('returnexcel/', views.returnexcel, name="returnexcel"),
 	path('archive_grade', views.archive_grade, name="archive_grade")
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,7 +1,4 @@
-import os
-
-from django.http import Http404
-from django.http import FileResponse
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 
@@ -9,8 +6,7 @@ from .models import JobEvaluation
 from .forms import PostForm, UnlogicalPostForm
 from .arrays import skills_arr, responsibility_arr, problems_solving_arr, union_arr, grade_arr
 
-from openpyxl import Workbook
-from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font, GradientFill
+import xlsxwriter
 
 
 @login_required
@@ -92,28 +88,27 @@ def index(request):
                                                               'logical_message': 'Нелогичность данных. Продолжить?',
                                                               'result_str': result_str})
             try:
-                job_evaluation_save = JobEvaluation(
-                    title=title,
-                    user=request.user,
-                    short_profile=short_profile,
-                    hard_skills=hard_skills,
-                    knowledge=knowledge,
-                    soft_skills=soft_skills,
-                    value_of_skills_section=value_of_skills_section,
-                    around_question=around_question,
-                    question_complexity=question_complexity,
-                    value_of_problems_section=int(value_of_problems_section * 100),
-                    value_of_union_section=value_of_union_section,
-                    freedom_action=freedom_action,
-                    nature_impact=nature_impact,
-                    impact_importance=impact_importance,
-                    value_of_responsibility_section=value_of_responsibility_section,
-                    sum_of_values=value_of_skills_section + value_of_union_section + value_of_responsibility_section,
-                    grade=grade)
-                job_evaluation_save.save()
+                save_model(
+                    title,
+                    request.user,
+                    short_profile,
+                    hard_skills,
+                    knowledge,
+                    soft_skills,
+                    value_of_skills_section,
+                    around_question,
+                    question_complexity,
+                    int(value_of_problems_section * 100),
+                    value_of_union_section,
+                    freedom_action,
+                    nature_impact,
+                    impact_importance,
+                    value_of_responsibility_section,
+                    value_of_skills_section + value_of_union_section + value_of_responsibility_section,
+                    grade)
             except:
-            	return render(request, "evacalc/index.html", {'form': form,
-                                                                  'error_message': 'Неккоректно ввели значения', })
+                return render(request, "evacalc/index.html", {'form': form,
+                                                              'error_message': 'Неккоректно ввели значения', })
             form = PostForm()
             return render(request, 'evacalc/index.html', {'form': form,
                                                           'success': result_str})
@@ -125,26 +120,24 @@ def index(request):
         if form.is_valid():
             result_str = form.cleaned_data['unlogical_result']
             result_arr = result_str.strip().split()
-            print(result_arr)
-            job_evaluation_save = JobEvaluation(
-                title=result_arr[1],
-                user=request.user,
-                short_profile=result_arr[2],
-                hard_skills=result_arr[3],
-                knowledge=result_arr[4],
-                soft_skills=result_arr[5],
-                value_of_skills_section=result_arr[6],
-                around_question=result_arr[7],
-                question_complexity=result_arr[8],
-                value_of_problems_section=int(result_arr[9]),
-                value_of_union_section=result_arr[10],
-                freedom_action=result_arr[11],
-                nature_impact=result_arr[12],
-                impact_importance=result_arr[13],
-                value_of_responsibility_section=result_arr[14],
-                sum_of_values=result_arr[15],
-                grade=result_arr[16])
-            job_evaluation_save.save()
+            save_model(
+            	result_arr[1],
+                request.user,
+                result_arr[2],
+                result_arr[3],
+                result_arr[4],
+                result_arr[5],
+                result_arr[6],
+                result_arr[7],
+                result_arr[8],
+                int(result_arr[9]),
+                result_arr[10],
+                result_arr[11],
+                result_arr[12],
+                result_arr[13],
+                result_arr[14],
+                result_arr[15],
+                result_arr[16])
             form = PostForm()
             return render(request, 'evacalc/index.html', {"form": form,
                                                           'success': result_str})
@@ -232,108 +225,126 @@ def delete_job_evaluation(id, redirect_str):
     job_name.delete()
     return redirect(redirect_str)
 
+def returnexcel(request):
 
-def create_xl(request):
-    jobs_dicts = list(JobEvaluation.objects.filter(user=request.user).values())
-    filename = f'{request.user}JobEvaluation.xlsx'
-    jobs_arr = []
-    for dictionary in jobs_dicts:
-        jobs_arr.append([])
-        jobs_arr[-1].append(dictionary['title'])
-        jobs_arr[-1].append(dictionary['short_profile'])
-        jobs_arr[-1].append(dictionary['hard_skills'])
-        jobs_arr[-1].append(dictionary['knowledge'])
-        jobs_arr[-1].append(dictionary['soft_skills'])
-        jobs_arr[-1].append(dictionary['value_of_skills_section'])
-        jobs_arr[-1].append(dictionary['around_question'])
-        jobs_arr[-1].append(dictionary['question_complexity'])
-        jobs_arr[-1].append(dictionary['value_of_problems_section'])
-        jobs_arr[-1].append(dictionary['value_of_union_section'])
-        jobs_arr[-1].append(dictionary['freedom_action'])
-        jobs_arr[-1].append(dictionary['nature_impact'])
-        jobs_arr[-1].append(dictionary['impact_importance'])
-        jobs_arr[-1].append(dictionary['value_of_responsibility_section'])
-        jobs_arr[-1].append(dictionary['sum_of_values'])
-        jobs_arr[-1].append(dictionary['grade'])
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Должности"
+	"""Считывание с БД"""
 
-    """ Заголовок """
+	jobs_dicts = list(JobEvaluation.objects.filter(user=request.user).values())
+	jobs_arr = []
+	for dictionary in jobs_dicts:
+		jobs_arr.append([])
+		jobs_arr[-1].append(dictionary['title'])
+		jobs_arr[-1].append(dictionary['short_profile'])
+		jobs_arr[-1].append(dictionary['hard_skills'])
+		jobs_arr[-1].append(dictionary['knowledge'])
+		jobs_arr[-1].append(dictionary['soft_skills'])
+		jobs_arr[-1].append(dictionary['value_of_skills_section'])
+		jobs_arr[-1].append(dictionary['around_question'])
+		jobs_arr[-1].append(dictionary['question_complexity'])
+		jobs_arr[-1].append(dictionary['value_of_problems_section'])
+		jobs_arr[-1].append(dictionary['value_of_union_section'])
+		jobs_arr[-1].append(dictionary['freedom_action'])
+		jobs_arr[-1].append(dictionary['nature_impact'])
+		jobs_arr[-1].append(dictionary['impact_importance'])
+		jobs_arr[-1].append(dictionary['value_of_responsibility_section'])
+		jobs_arr[-1].append(dictionary['sum_of_values'])
+		jobs_arr[-1].append(dictionary['grade'])
+	response = HttpResponse(content_type='application/vnd.ms-excel')
+	response['Content-Disposition'] = f'attachment; filename="{request.user}JobEvaluation.xlsx"'
+	workbook = xlsxwriter.Workbook(response, {'in_memory': True})
+	worksheet = workbook.add_worksheet('Список должностей')
 
-    ws.merge_cells('B1:Z2')
-    ws['B1'] = "Калькулятор оценки должностей EPSI Rating"
-    thin = Side(border_style="thin", color="000000")
-    ws['B1'].border = Border(top=thin, left=thin, right=thin, bottom=thin)
-    ws['B1'].fill = PatternFill("solid", fgColor="DDDDDD")
-    ws['B1'].font = Font(name='TimesNewRoman', size=22, b=True, color="FF0000")
-    ws['B1'].alignment = Alignment(horizontal="center", vertical="center")
+	"""EPSI Заголовок"""
 
-    """ Заголовки ячеек """
+	epsi_header = workbook.add_format({
+	'bold':True,
+	'align':'center',
+	'valign':'vcenter',
+	'border':6,
+	'color':"#FF0000",
+	'fg_color':'DDDDDD',
+	'font_name':'TimesNewRoman',
+	'font_size': 22
+	})
+	worksheet.merge_range('B1:Z2', 'Калькулятор оценки должностей EPSI Rating', epsi_header)
 
-    letter_numb = 65
-    for _ in range(13):
-        ws.merge_cells(f'{chr(letter_numb)}3:{chr(letter_numb + 1)}4')
-        letter_numb += 2
-    ws.merge_cells('AA3:AA4')
-    ws['A3'] = "Название должности"
-    ws['C3'] = "Краткий профиль"
-    ws['E3'] = "Практические знания"
-    ws['G3'] = "Управленческие знания"
-    ws['I3'] = "Навыки общения"
-    ws['K3'] = "Пункт оценки"
-    ws['M3'] = "Область вопросов"
-    ws['O3'] = "Сложность вопросов"
-    ws['Q3'] = "Значение в %"
-    ws['S3'] = "Свобода действий"
-    ws['U3'] = "Природа воздействия"
-    ws['W3'] = "Важность воздействия"
-    ws['Y3'] = "Пункты оценки"
-    ws['AA3'] = "Грейд"
-    letter_numb = 65
-    for i in range(13):
-        xl_title = ws[f'{chr(letter_numb)}3']
-        if i % 2 == 0:
-            bg_color = "E41717"
-        else:
-            bg_color = "B32D2D"
-        xl_title.border = Border(top=thin, left=thin, right=thin, bottom=thin)
-        xl_title.fill = PatternFill("solid", fgColor=bg_color)
-        xl_title.font = Font(name='TimesNewRoman', size=14, b=True, color="000000")
-        xl_title.alignment = Alignment(horizontal="center", wrap_text=True, vertical="center")
-        letter_numb += 2
-    last_cell = ws['AA3']
-    last_cell.border = Border(top=thin, left=thin, right=thin, bottom=thin)
-    last_cell.fill = PatternFill("solid", fgColor="B32D2D")
-    last_cell.font = Font(name='TimesNewRoman', size=14, b=True, color="000000")
-    last_cell.alignment = Alignment(horizontal="center", wrap_text=True, vertical="center")
+	"""Заголовки ячеек"""
 
-    """ Значения """
+	cells_header = workbook.add_format({
+		'bold':True,
+		'text_wrap':True,
+		'align':'vcenter',
+		'valign':'center',
+		'border':3,
+		'color':'000000',
+		'fg_color':'E41717',
+		'font_name':'TimesNewRoman',
+		'font_size':14,
+		})
 
-    row_number = 5
-    for each in jobs_arr:
-        letter_numb = 65
-        for i in range(13):
-            cell = ws[f'{chr(letter_numb)}{row_number}']
-            ws.merge_cells(f'{chr(letter_numb)}{row_number}:{chr(letter_numb + 1)}{row_number}')
-            ws[f'{chr(letter_numb)}{row_number}'] = each[i]
-            cell.border = Border(top=thin, left=thin, right=thin, bottom=thin)
-            cell.font = Font(name='TimesNewRoman', size=12, b=True, color="000000")
-            cell.alignment = Alignment(horizontal="center", vertical="center")
-            letter_numb += 2
-        last_cell = ws[f"AA{row_number}"]
-        ws[f"AA{row_number}"] = each[-1]
-        last_cell.border = Border(top=thin, left=thin, right=thin, bottom=thin)
-        last_cell.font = Font(name='TimesNewRoman', size=12, b=True, color="000000")
-        last_cell.alignment = Alignment(horizontal="center", vertical="center")
-        row_number += 1
-    wb.save(filename=filename)
+	titles_header = ["Название должности",
+	"Краткий профиль",
+    "Практические знания",
+    "Управленческие знания",
+    "Навыки общения",
+    "Пункт оценки",
+    "Область вопросов",
+    "Сложность вопросов",
+    "Значение в %",
+    "Свобода действий",
+    "Природа воздействия",
+    "Важность воздействия",
+    "Пункты оценки"]
+
+	letter_numb = 65
+	title_count = 0
+	for _ in range(13):
+		cell_title = titles_header[title_count]
+		worksheet.merge_range(f'{chr(letter_numb)}3:{chr(letter_numb + 1)}4', f'{cell_title}', cells_header)
+		letter_numb += 2
+		title_count += 1
+	worksheet.merge_range('AA3:AA4', 'Грейд', cells_header)
+
+	"""Значения ячеек"""
+
+	cells_values = workbook.add_format({
+		'align':'vcenter',
+		'valign':'center',
+		'border':1,
+		'color':'000000',
+		'font_name':'TimesNewRoman',
+		'font_size':14,
+		})
 
 
-def get_file(request):
-    create_xl(request)
-    file_path = f'{request.user}JobEvaluation.xlsx'
-    if os.path.exists(file_path):
-        response = FileResponse(open(file_path, 'rb'))
-        return response
-    raise Http404
+	row_numb = 5
+	for value in jobs_arr:
+		col_numb = 65
+		for each in range(13):
+			worksheet.merge_range(f'{chr(col_numb)}{row_numb}:{chr(col_numb+1)}{row_numb}', f'{value[each]}', cells_values)
+			col_numb += 2
+		worksheet.write(f'AA{row_numb}', value[-1], cells_values)
+		row_numb += 1
+	workbook.close()
+	return response
+
+def save_model(*args):
+	job_evaluation_save = JobEvaluation(
+		title=args[0],
+		user=args[1],
+		short_profile=args[2],
+		hard_skills=args[3],
+		knowledge=args[4],
+		soft_skills=args[5],
+		value_of_skills_section=args[6],
+		around_question=args[7],
+		question_complexity=args[8],
+		value_of_problems_section=int(args[9]),
+		value_of_union_section=args[10],
+		freedom_action=args[11],
+		nature_impact=args[12],
+		impact_importance=args[13],
+		value_of_responsibility_section=args[14],
+		sum_of_values=args[15],
+		grade=args[16])
+	job_evaluation_save.save()
