@@ -112,9 +112,7 @@ def index(request):
                     grade=grade)
                 job_evaluation_save.save()
             except:
-                if is_none(value_of_skills_section, value_of_problems_section, value_of_union_section,
-                           value_of_responsibility_section):
-                    return render(request, "evacalc/index.html", {'form': form,
+            	return render(request, "evacalc/index.html", {'form': form,
                                                                   'error_message': 'Неккоректно ввели значения', })
             form = PostForm()
             return render(request, 'evacalc/index.html', {'form': form,
