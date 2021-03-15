@@ -14,17 +14,12 @@ from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Fo
 
 
 @login_required
-def result(request):
-    return render(request, 'evacalc/result.html')
-
-
-@login_required
 def archive_date(request):
     if request.method == "POST":
         job_dict = request.POST
-        job_title = list(job_dict.values())[1]
+        job_id = list(job_dict.values())[1]
         redirect_str = "archive_date"
-        delete_job_evaluation(job_title, redirect_str)
+        delete_job_evaluation(job_id, redirect_str)
     jobs_list = JobEvaluation.objects.order_by('-created_date').filter(user=request.user)
     context = {'jobs_list': jobs_list}
     return render(request, 'evacalc/archive.html', context)
@@ -34,9 +29,9 @@ def archive_date(request):
 def archive_grade(request):
     if request.method == "POST":
         job_dict = request.POST
-        job_title = list(job_dict.values())[1]
+        job_id = list(job_dict.values())[1]
         redirect_str = "archive_grade"
-        delete_job_evaluation(job_title, redirect_str)
+        delete_job_evaluation(job_id, redirect_str)
     jobs_list = JobEvaluation.objects.order_by('-grade').filter(user=request.user)
     context = {'jobs_list': jobs_list}
     return render(request, 'evacalc/archive.html', context)
@@ -96,25 +91,31 @@ def index(request):
                 return render(request, "evacalc/index.html", {'form': form,
                                                               'logical_message': 'Нелогичность данных. Продолжить?',
                                                               'result_str': result_str})
-            job_evaluation_save = JobEvaluation(
-                title=title,
-                user=request.user,
-                short_profile=short_profile,
-                hard_skills=hard_skills,
-                knowledge=knowledge,
-                soft_skills=soft_skills,
-                value_of_skills_section=value_of_skills_section,
-                around_question=around_question,
-                question_complexity=question_complexity,
-                value_of_problems_section=int(value_of_problems_section * 100),
-                value_of_union_section=value_of_union_section,
-                freedom_action=freedom_action,
-                nature_impact=nature_impact,
-                impact_importance=impact_importance,
-                value_of_responsibility_section=value_of_responsibility_section,
-                sum_of_values=value_of_skills_section + value_of_union_section + value_of_responsibility_section,
-                grade=grade)
-            job_evaluation_save.save()
+            try:
+                job_evaluation_save = JobEvaluation(
+                    title=title,
+                    user=request.user,
+                    short_profile=short_profile,
+                    hard_skills=hard_skills,
+                    knowledge=knowledge,
+                    soft_skills=soft_skills,
+                    value_of_skills_section=value_of_skills_section,
+                    around_question=around_question,
+                    question_complexity=question_complexity,
+                    value_of_problems_section=int(value_of_problems_section * 100),
+                    value_of_union_section=value_of_union_section,
+                    freedom_action=freedom_action,
+                    nature_impact=nature_impact,
+                    impact_importance=impact_importance,
+                    value_of_responsibility_section=value_of_responsibility_section,
+                    sum_of_values=value_of_skills_section + value_of_union_section + value_of_responsibility_section,
+                    grade=grade)
+                job_evaluation_save.save()
+            except:
+                if is_none(value_of_skills_section, value_of_problems_section, value_of_union_section,
+                           value_of_responsibility_section):
+                    return render(request, "evacalc/index.html", {'form': form,
+                                                                  'error_message': 'Неккоректно ввели значения', })
             form = PostForm()
             return render(request, 'evacalc/index.html', {'form': form,
                                                           'success': result_str})
@@ -155,7 +156,6 @@ def index(request):
 
 
 def compute_skills_section(hard_skills, knowledge, soft_skills):
-
     """Практические занятия Управленческие знания Навыки взаимодействия"""
 
     is_skills_section_logical = True
@@ -171,7 +171,6 @@ def compute_skills_section(hard_skills, knowledge, soft_skills):
 
 
 def compute_problems_section(around_question, question_complexity):
-
     """Область решаемых вопросов Сложность вопросов"""
 
     is_problems_section_logical = True
@@ -198,7 +197,6 @@ def compute_union_skills_and_problems(value_of_skills_section, value_of_problems
 
 
 def compute_responsibility_section(freedom_action, nature_impact, impact_importance):
-
     """ Свобода действий Природа воздействия Важность воздействия"""
 
     for arr in responsibility_arr:
@@ -216,11 +214,10 @@ def grade_determine(sum_of_values):
     return None
 
 
-def is_none(value_of_skills_section, value_of_problems_section, value_of_union_section,
-            value_of_responsibility_section):
-    if (value_of_skills_section is None) or (value_of_problems_section is None) or (value_of_union_section is None) or (
-            value_of_responsibility_section is None):
-        return True
+def is_none(*args):
+    for value in args:
+        if value is None:
+            return True
     return False
 
 
@@ -232,8 +229,8 @@ def is_waterfall_principle(hard_skills, around_question, freedom_action):
     return True
 
 
-def delete_job_evaluation(title, redirect_str):
-    job_name = JobEvaluation.objects.get(title=title)
+def delete_job_evaluation(id, redirect_str):
+    job_name = JobEvaluation.objects.get(id=id)
     job_name.delete()
     return redirect(redirect_str)
 
