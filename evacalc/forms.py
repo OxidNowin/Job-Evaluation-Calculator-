@@ -49,18 +49,34 @@ impact_importance_choices = [('', '-'),
                              ('IV', 'IV')]
 
 
-class PostForm(forms.Form):
-    title = forms.CharField(max_length=25)
-    short_profile = forms.ChoiceField(widget=forms.Select, choices=profile_choices)
-    hard_skills = forms.ChoiceField(widget=forms.Select, choices=hard_skills_choices)
-    knowledge = forms.ChoiceField(widget=forms.Select, choices=knowledge_choices)
-    soft_skills = forms.ChoiceField(widget=forms.Select, choices=soft_skills_choices)
-    around_question = forms.ChoiceField(widget=forms.Select, choices=around_question_choices)
-    question_complexity = forms.ChoiceField(widget=forms.Select, choices=question_complexity_choices)
-    freedom_action = forms.ChoiceField(widget=forms.Select, choices=freedom_action_choices)
-    nature_impact = forms.ChoiceField(widget=forms.Select, choices=nature_impact_choices)
-    impact_importance = forms.ChoiceField(widget=forms.Select, choices=impact_importance_choices)
+class FirstSectionForm(forms.Form):
+  title = forms.CharField(max_length=25)
+  short_profile = forms.ChoiceField(widget=forms.Select, choices=profile_choices)
+  hard_skills = forms.ChoiceField(widget=forms.Select, choices=hard_skills_choices)
+  knowledge = forms.ChoiceField(widget=forms.Select, choices=knowledge_choices)
+  soft_skills = forms.ChoiceField(widget=forms.Select, choices=soft_skills_choices)
+
+
+class SecondSectionForm(forms.Form):
+  result_dict_1 = forms.CharField(label="result_dict_1")
+  around_question = forms.ChoiceField(widget=forms.Select, choices=around_question_choices)
+  question_complexity = forms.ChoiceField(widget=forms.Select, choices=question_complexity_choices)
+
+
+class ThirdSectionForm(forms.Form):
+  grade_result_dict = forms.CharField(label="grade_result_dict")
+  freedom_action = forms.ChoiceField(widget=forms.Select, choices=freedom_action_choices)
+  nature_impact = forms.ChoiceField(widget=forms.Select, choices=nature_impact_choices)
+  impact_importance = forms.ChoiceField(widget=forms.Select, choices=impact_importance_choices)
 
 
 class UnlogicalPostForm(forms.Form):
-    unlogical_result = forms.CharField(label="unlogical_result")
+  unlogical_result = forms.CharField(label="unlogical_result")
+
+
+class SaveUnlogicalDictAndBack(forms.Form):
+  back_dict = forms.CharField(label="back_dict")
+
+
+class AddInDBForm(forms.Form):
+  last_dict = forms.CharField(label="last_dict")

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Ответственность{% endblock %}
+{% load staticfiles %}
+{% block content %}
+{% include "include/header.html" %}
+        <main>
+          <section class="hr">
+            <div class="container hr__container">
+              {% if result_dict_3 %}
+              {{ result_dict_3 }}
+              {% endif %}
+            {% if grade_result_dict %}
+            <div class="error-container">
+              <div class="error">
+                <div class="error-svg"></div>
+                {{ grade_result_dict}}
+                <a href="{% url 'skills_section' %}" class="error-button typical__button_small">Пересчитать</a>
+                <form method="POST">
+                  {% csrf_token %}
+                  <input type="hidden" name="last_dict" value="{{ grade_result_dict }}" id="id_last_dict">
+                  <div class="error__button-wrapper">
+                    <input type="submit" value="Добавить в таблицу" name="add_in_db" class="typical__button_small">
+                  </div>
+                </form>
+              </div>
+            </div>
+            {% endif %}
+              <form action="" class="hr__form" method="POST">
+                {% csrf_token %}
+                <input name="grade_result_dict" id="id_grade_result_dict" value="{{ result_dict_2 }}" type="text">
+                <div class="hr__form-wrpapper">
+                  <div class="hr__form-main">
+                    <h2 class="hr__form-title">Шаг 3.Ответственность</h2>
+                    <div class="select-main">
+                      <div class="select-wrapper">
+                        <h3 class="select-title">1.Свобода действий</h3>
+                        <div class="select">
+                          <div class="select">
+                            {{ form.freedom_action }}
+                          </div>
+                        </div>
+                      </div>
+                      <div class="select-wrapper">
+                        <h3 class="select-title">2.Природа воздействия</h3>
+                        <div class="select">
+                          {{ form.nature_impact }}
+                        </div>
+                      </div>
+                      <div class="select-wrapper">
+                        <h3 class="select-title">3.Важность воздействия</h3>
+                        <div class="select">
+                          {{ form.impact_importance }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="hr__button-wrapper">
+                  <button class="typical__button hr__assess-button" type="submit" name="evaluate3">Оценить</button>
+                  <button class="typical__button hr__form-button" type="submit" name="next_step3">Далее</button>
+                </div>
+              </form>
+            </div>
+          </section>
+        </main>
+{% include "include/footer.html" %}
+{% endblock %}

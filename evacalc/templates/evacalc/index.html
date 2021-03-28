@@ -42,11 +42,7 @@
           <h2 class="hr__title">
             Оцените должность
           </h2>
-          {% if overstimate %}
-          <input type="text" class="hr__input" id="id_title" name="title" placeholder="Введите название должности" value="{{ overstimate.title }}">
-          {% else %}
           <input type="text" class="hr__input" id="id_title" name="title" placeholder="Введите название должности">
-          {% endif %}
           <div class="select select-profile">
             {{ form.short_profile }}
           </div>
