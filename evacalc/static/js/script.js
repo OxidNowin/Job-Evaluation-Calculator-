@@ -56,17 +56,3 @@ document.getElementById("id_nature_impact").addEventListener("change", function(
   if(this.value == "1" || this.value == "2" || this.value == "3" || this.value == "4") [5,6,7,8].forEach(num => options[num].setAttribute("disabled", true))
   
 });
-
-let success = document.querySelector('.success-container');
-
-function hideSuccess() {
-  success.classList.add('hide');
-}
-
-if (success.classList.contains('success-container')) {
-
-  setTimeout(() => {
-    hideSuccess();
-  }, 1500);
-
-}

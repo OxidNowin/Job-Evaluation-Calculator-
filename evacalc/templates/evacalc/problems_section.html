@@ -6,38 +6,44 @@
     <main>
       <section class="hr">
         <div class="container hr__container">
-          {% if result_dict_2 %}
-          {{ result_dict_2 }}
-          {% endif %}
           {% if logical_message_2 %}
-          <div class="error-container">
-            <div class="error">
-              <div class="error-svg"></div>
-              <h2 class="error-text">{{ logical_message_2 }}</h2>
-              {{ result_dict_2.around_question }}
-              {{ result_dict_2.question_complexity }}
-              {{ result_dict_2.value_of_problems_section }}
-              {{ result_dict_2.value_of_union_section }}              
-            <form method="POST">
-              {% csrf_token %}
-              <input id="id_unlogical_result" value="{{ result_dict_2 }}" type="hidden" name="unlogical_result">
-              <div class="error__button-wrapper">
-                <input type="submit" value="Продолжить" name="unlogical_post2" class="typical__button_small">
+            <div class="error-container">
+              <div class="error">
+                <div class="error-svg"></div>
+                <h2 class="error-text">{{ logical_message_2 }}</h2>
+                {{ result_dict_2.around_question }}
+                {{ result_dict_2.question_complexity }}
+                {{ result_dict_2.value_of_problems_section }}
+                {{ result_dict_2.value_of_union_section }}              
+              <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="back_dict" value="{{ result_dict_1 }}" id="id_back_dict">
+                <div class="error__button-wrapper">
+                  <input type="submit" value="Пересчитать" name="go_to_2" class="typical__button_small">
+                </div>
+              </form>
+              <form method="POST">
+                {% csrf_token %}
+                <input id="id_unlogical_result" value="{{ result_dict_2 }}" type="hidden" name="unlogical_result">
+                <div class="error__button-wrapper">
+                  <input type="submit" value="Продолжить" name="unlogical_post2" class="typical__button_small">
+                </div>
+              </form>
               </div>
-            </form>
-            <form method="POST">
-              {% csrf_token %}
-              <input type="hidden" name="back_dict" value="{{ result_dict_1 }}" id="id_back_dict">
-              <div class="error__button-wrapper">
-                <input type="submit" value="Пересчитать" name="go_to_2" class="typical__button_small">
-              </div>
-            </form>
             </div>
-          </div>
+          {% endif %}
+          {% if result_dict_2 %}
+            {{ result_dict_2.around_question }}
+            {{ result_dict_2.question_complexity }}
+            {{ result_dict_2.value_of_problems_section }}
+            {{ result_dict_2.value_of_union_section }}
+            {% if result_dict_2.is_problems_section_logical == False or result_dict_2.is_union_section_logical == False %} 
+              <span>Нелогичность данных</span>
+            {% endif %}
           {% endif %}
           <form action="" class="hr__form hr__form_second" method="POST">
             {% csrf_token %}
-            <input name="result_dict_1" id="id_result_dict_1" value="{{ result_dict_1 }}" type="text">
+            <input name="result_dict_1" id="id_result_dict_1" value="{{ result_dict_1 }}" type="hidden">
             <div class="hr__form-wrpapper">
               <div class="hr__form-main">
                 <h2 class="hr__form-title">Шаг 2.Решение проблем</h2>

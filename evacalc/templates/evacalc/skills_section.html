@@ -14,7 +14,7 @@
               {{ result_dict_1.hard_skills }}
               {{ result_dict_1.knowledge }}
               {{ result_dict_1.soft_skills }}
-              {{ result_dict_1.value_of_skills_section }}              
+              {{ result_dict_1.value_of_skills_section }}            
             <form method="POST">
               {% csrf_token %}
               <input id="id_unlogical_result" value="{{ result_dict_1 }}" type="hidden" name="unlogical_result">
@@ -31,6 +31,9 @@
           {{ result_dict_1.knowledge }}
           {{ result_dict_1.soft_skills }}
           {{ result_dict_1.value_of_skills_section }}
+            {% if result_dict_1.is_skills_section_logical == False %}
+              <span>Нелогичность данных</span>
+            {% endif %}  
           {% endif %}      
           <form action="" class="hr__form" method="POST">
             {% csrf_token %}

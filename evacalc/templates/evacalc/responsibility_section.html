@@ -6,28 +6,49 @@
         <main>
           <section class="hr">
             <div class="container hr__container">
-              {% if result_dict_3 %}
-              {{ result_dict_3 }}
-              {% endif %}
             {% if grade_result_dict %}
-            <div class="error-container">
-              <div class="error">
-                <div class="error-svg"></div>
-                {{ grade_result_dict}}
-                <a href="{% url 'skills_section' %}" class="error-button typical__button_small">Пересчитать</a>
-                <form method="POST">
-                  {% csrf_token %}
-                  <input type="hidden" name="last_dict" value="{{ grade_result_dict }}" id="id_last_dict">
-                  <div class="error__button-wrapper">
-                    <input type="submit" value="Добавить в таблицу" name="add_in_db" class="typical__button_small">
-                  </div>
-                </form>
+              <div class="error-container">
+                <div class="error">
+                  {% if grade_result_dict.is_skills_section_logical == False or grade_result_dict.is_problems_section_logical == False or grade_result_dict.is_union_section_logical == False or grade_result_dict.is_responsibility_section_logical == False %}
+                  <div class="error-svg"></div>
+                  {% else %}
+                  <div class="success-svg"></div>
+                  {% endif %}
+                  {{ grade_result_dict.title}}
+                  {{ grade_result_dict.short_profile }}
+                  {{ grade_result_dict.hard_skills }}
+                  {{ grade_result_dict.knowledge }}
+                  {{ grade_result_dict.soft_skills }}
+                  {{ grade_result_dict.value_of_skills_section }}
+                  {{ grade_result_dict.around_question }}
+                  {{ grade_result_dict.question_complexity }}
+                  {{ grade_result_dict.value_of_problems_section }}
+                  {{ grade_result_dict.value_of_union_section }}
+                  {{ grade_result_dict.freedom_action }}
+                  {{ grade_result_dict.nature_impact }}
+                  {{ grade_result_dict.impact_importance }}
+                  {{ grade_result_dict.sum_of_values }}
+                  {{ grade_result_dict.grade }}
+                  <a href="{% url 'skills_section' %}" class="error-button typical__button_small">Пересчитать</a>
+                  <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="last_dict" value="{{ grade_result_dict }}" id="id_last_dict">
+                    <div class="error__button-wrapper">
+                      <input type="submit" value="Добавить в таблицу" name="add_in_db" class="typical__button_small">
+                    </div>
+                  </form>
+                </div>
               </div>
-            </div>
+            {% endif %}
+            {% if result_dict_3 %}
+              {{ result_dict_3.freedom_action }}
+              {{ result_dict_3.nature_impact }}
+              {{ result_dict_3.impact_importance }}
+              {{ result_dict_3.value_of_responsibility_section }}
             {% endif %}
               <form action="" class="hr__form" method="POST">
                 {% csrf_token %}
-                <input name="grade_result_dict" id="id_grade_result_dict" value="{{ result_dict_2 }}" type="text">
+                <input name="grade_result_dict" id="id_grade_result_dict" value="{{ result_dict_2 }}" type="hidden">
                 <div class="hr__form-wrpapper">
                   <div class="hr__form-main">
                     <h2 class="hr__form-title">Шаг 3.Ответственность</h2>

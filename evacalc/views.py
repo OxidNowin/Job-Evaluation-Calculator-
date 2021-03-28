@@ -67,8 +67,8 @@ def skills_section(request):
         form = SecondSectionForm(request.POST)
         if form.is_valid():
             result_dict_1, result_dict_2 = problems_operations(form) 
-            if (result_dict_2['is_problems_section_logical'] and result_dict_2['is_union_of_sections_logical'] and
-                result_dict_2['is_skills_of_sections_logical']) is False:
+            if (result_dict_2['is_problems_section_logical'] and result_dict_2['is_union_section_logical'] and
+                result_dict_2['is_skills_section_logical']) is False:
                 return render(request, "evacalc/problems_section.html", {'form': form,
                                                                          'logical_message_2': 'Нелогичность данных!',
                                                                          'result_dict_2': result_dict_2,
@@ -141,7 +141,7 @@ def problems_operations(form):
     question_complexity = str(form.cleaned_data['question_complexity'].upper())
     value_of_skills_section = result_dict_1['value_of_skills_section']
     value_of_problems_section, is_problems_section_logical = compute_problems_section(around_question, question_complexity)
-    value_of_union_section, is_union_of_sections_logical = compute_union_skills_and_problems(value_of_skills_section, 
+    value_of_union_section, is_union_section_logical = compute_union_skills_and_problems(value_of_skills_section, 
                                                                                             value_of_problems_section)
     value_of_problems_section = int(value_of_problems_section*100)
     result_dict_2 = result_dict_1.copy()
@@ -150,7 +150,7 @@ def problems_operations(form):
                           'value_of_problems_section': value_of_problems_section,
                           'value_of_union_section': value_of_union_section,
                           'is_problems_section_logical': is_problems_section_logical,
-                          'is_union_of_sections_logical': is_union_of_sections_logical,})
+                          'is_union_section_logical': is_union_section_logical,})
     return result_dict_1, result_dict_2
 
 
@@ -213,14 +213,14 @@ def compute_problems_section(around_question, question_complexity):
 
 
 def compute_union_skills_and_problems(value_of_skills_section, value_of_problems_section):
-    is_union_of_sections_logical = True
+    is_union_section_logical = True
 
     for arr in union_arr:
         if str(arr[0]) == str(value_of_problems_section):
             if str(arr[1]) == str(value_of_skills_section):
                 if str(arr[3]) == "0":
-                    is_union_of_sections_logical = False
-                return int(arr[2]), is_union_of_sections_logical
+                    is_union_section_logical = False
+                return int(arr[2]), is_union_section_logical
     return None, None
 
 
@@ -240,13 +240,6 @@ def grade_determine(sum_of_values):
         if (sum_of_values <= summ[2]) and (sum_of_values >= summ[1]):
             return summ[0]
     return None
-
-
-def is_none(*args):
-    for value in args:
-        if value is None:
-            return True
-    return False
 
 
 def delete_job_evaluation(id, redirect_str):
