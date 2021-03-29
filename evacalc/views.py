@@ -46,7 +46,7 @@ def skills_section(request):
             result_dict_1 = skills_operations(form)
             if result_dict_1['is_skills_section_logical'] is False:
                 return render(request, "evacalc/skills_section.html", {'form': form,
-                                                                      'logical_message_1': 'Нелогичность данных!',
+                                                                      'logical_message_1': 'Нелогичное сочетание!',
                                                                       'result_dict_1': result_dict_1})
             return render(request, 'evacalc/problems_section.html', {'form': SecondSectionForm(),
                                                                      'result_dict_1':result_dict_1})
@@ -70,7 +70,7 @@ def skills_section(request):
             if (result_dict_2['is_problems_section_logical'] and result_dict_2['is_union_section_logical'] and
                 result_dict_2['is_skills_section_logical']) is False:
                 return render(request, "evacalc/problems_section.html", {'form': form,
-                                                                         'logical_message_2': 'Нелогичность данных!',
+                                                                         'logical_message_2': 'Нелогичное сочетание!',
                                                                          'result_dict_2': result_dict_2,
                                                                          'result_dict_1': result_dict_1,})
             return render(request, 'evacalc/responsibility_section.html', {'form': ThirdSectionForm(),
@@ -283,10 +283,10 @@ def returnexcel(request):
         'align': 'center',
         'valign': 'vcenter',
         'border': 6,
-        'color': "#FF0000",
-        'fg_color': 'DDDDDD',
+        'color': "#000000",
+        'fg_color': '#FFFFFF',
         'font_name': 'TimesNewRoman',
-        'font_size': 22
+        'font_size': 16
     })
     worksheet.merge_range('B1:Z2', 'Калькулятор оценки должностей EPSI Rating', epsi_header)
 
@@ -298,8 +298,8 @@ def returnexcel(request):
         'align': 'vcenter',
         'valign': 'center',
         'border': 3,
-        'color': '000000',
-        'fg_color': 'E41717',
+        'color': '#000000',
+        'fg_color': 'D0D0D0',
         'font_name': 'TimesNewRoman',
         'font_size': 14,
     })
@@ -313,10 +313,11 @@ def returnexcel(request):
                      "Область вопросов",
                      "Сложность вопросов",
                      "Значение в %",
+                     "Значение оценки",
                      "Свобода действий",
                      "Природа воздействия",
-                     "Важность воздействия",
-                     "Пункты оценки"]
+                     "Важность воздействия"
+                     ]
 
     letter_numb = 65
     title_count = 0
@@ -325,7 +326,9 @@ def returnexcel(request):
         worksheet.merge_range(f'{chr(letter_numb)}3:{chr(letter_numb + 1)}4', f'{cell_title}', cells_header)
         letter_numb += 2
         title_count += 1
-    worksheet.merge_range('AA3:AA4', 'Грейд', cells_header)
+    worksheet.merge_range('AA3:AB4', 'Пункты оценки', cells_header)
+    worksheet.merge_range('AC3:AC4', 'Сумма оценок', cells_header)
+    worksheet.merge_range('AD3:AD4', 'Грейд', cells_header)
 
     """Значения ячеек"""
 
@@ -335,17 +338,18 @@ def returnexcel(request):
         'border': 1,
         'color': '000000',
         'font_name': 'TimesNewRoman',
-        'font_size': 14,
+        'font_size': 12,
     })
 
     row_numb = 5
     for value in jobs_arr:
         col_numb = 65
         for each in range(13):
-            worksheet.merge_range(f'{chr(col_numb)}{row_numb}:{chr(col_numb + 1)}{row_numb}', f'{value[each]}',
-                                  cells_values)
+            worksheet.merge_range(f'{chr(col_numb)}{row_numb}:{chr(col_numb + 1)}{row_numb}', f'{value[each]}',cells_values)
             col_numb += 2
-        worksheet.write(f'AA{row_numb}', value[-1], cells_values)
+        worksheet.merge_range(f'AA{row_numb}:AB{row_numb}', value[-3], cells_values)
+        worksheet.write(f'AC{row_numb}', value[-2], cells_values)
+        worksheet.write(f'AD{row_numb}', value[-1], cells_values)
         row_numb += 1
     workbook.close()
     return response
