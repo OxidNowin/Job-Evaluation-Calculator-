@@ -2,39 +2,34 @@
 {% block title %}Знания и навыки{% endblock %}
 {% load staticfiles %}
 {% block content %}
+
+{% if logical_message_1 %}
+<div class="error-container">
+  <div class="error">
+    <div class="error-svg"></div>
+    <h2 class="error-text">Нелогиное сочетание</h2>
+    <div class="error-logic">
+      {{ result_dict_1.hard_skills }}
+      {{ result_dict_1.knowledge }}
+      {{ result_dict_1.soft_skills }}
+      {{ result_dict_1.value_of_skills_section }}  
+    </div>          
+  <form method="POST">
+    {% csrf_token %}
+    <input id="id_unlogical_result" value="{{ result_dict_1 }}" type="hidden" name="unlogical_result">
+    <div class="error__button-wrapper">
+      <a href="{% url 'skills_section' %}" class="error-button typical__button_small">Пересчитать</a>
+      <input type="submit" value="Продолжить" name="unlogical_post1" class="typical__button_small">
+    </div>
+  </form>
+  </div>
+</div>
+{% endif %}
+
 {% include "include/header.html" %}
     <main>
       <section class="hr">
-        <div class="container hr__container">
-          {% if logical_message_1 %}
-          <div class="error-container">
-            <div class="error">
-              <div class="error-svg"></div>
-              <h2 class="error-text">{{ logical_message_1 }}</h2>
-              {{ result_dict_1.hard_skills }}
-              {{ result_dict_1.knowledge }}
-              {{ result_dict_1.soft_skills }}
-              {{ result_dict_1.value_of_skills_section }}            
-            <form method="POST">
-              {% csrf_token %}
-              <input id="id_unlogical_result" value="{{ result_dict_1 }}" type="hidden" name="unlogical_result">
-              <div class="error__button-wrapper">
-                <a href="{% url 'skills_section' %}" class="error-button typical__button_small">Пересчитать</a>
-                <input type="submit" value="Продолжить" name="unlogical_post1" class="typical__button_small">
-              </div>
-            </form>
-            </div>
-          </div>
-          {% endif %}
-          {% if result_dict_1 %}
-          {{ result_dict_1.hard_skills }}
-          {{ result_dict_1.knowledge }}
-          {{ result_dict_1.soft_skills }}
-          {{ result_dict_1.value_of_skills_section }}
-            {% if result_dict_1.is_skills_section_logical == False %}
-              <span>Нелогичность данных</span>
-            {% endif %}  
-          {% endif %}      
+        <div class="container hr__container">   
           <form action="" class="hr__form" method="POST">
             {% csrf_token %}
           <div class="hr__title">
@@ -43,9 +38,25 @@
               {{ form.short_profile }}
             </div>
           </div>
+          <div class="hr__form-main">
             <div class="hr__form-wrpapper">
               <div class="hr__form-main">
-                <h2 class="hr__form-title">Шаг 1.Знания и навыки</h2>
+                <div class="hr__title-wrapper">
+                  <h2 class="hr__form-title">Шаг 1.Знания и навыки</h2>
+                    <div class="hr__logic-wrapper">
+                      {% if result_dict_1 %}
+                      <div class="hr__logic">
+                        {{ result_dict_1.hard_skills }}
+                        {{ result_dict_1.knowledge }}
+                        {{ result_dict_1.soft_skills }}
+                        {{ result_dict_1.value_of_skills_section }}
+                      </div>
+                        {% if result_dict_1.is_skills_section_logical == False %}
+                        <span class="hr__logic-text">Нелогичное сочетание</span>
+                        {% endif %} 
+                        {% endif %}
+                    </div> 
+                </div>
                 <div class="select-main">
                   <div class="select-wrapper">
                     <h3 class="select-title">1.Практические/ Технические знания</h3>
@@ -72,6 +83,7 @@
               <button class="typical__button hr__assess-button" name="evaluate" type="submit">Оценить</button>
               <button class="typical__button hr__form-button" name="next_step" type="submit">Далее</button>
             </div>
+          </div>
           </form>
         </div>
       </section>
