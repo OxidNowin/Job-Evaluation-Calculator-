@@ -1,7 +1,11 @@
 select = document.getElementById("id_freedom_action");
 options = [...select];
-sel = document.getElementById("waterfall_responsibility").value;
-alert(sel)
+string = document.getElementById("id_grade_result_dict").value;
+string1 = string.replace(/False/g,'"False"');
+string2 = string1.replace(/True/g,'"True"');
+string3 = string2.replace(/'/g, '"');
+dict = JSON.parse(string3);
+sel = dict.around_question;
 if(this.sel == "A") {[2,3,4,5,6,7,8].forEach(num => options[num].setAttribute("disabled", true));}
 if(this.sel == "B") {[3,4,5,6,7,8].forEach(num => options[num].setAttribute("disabled", true));}
 if(this.sel == "C") {[4,5,6,7,8].forEach(num => options[num].setAttribute("disabled", true));}

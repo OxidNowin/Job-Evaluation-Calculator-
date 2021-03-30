@@ -97,10 +97,14 @@ def skills_section(request):
     elif request.method=='POST' and 'next_step3' in request.POST:
         form = ThirdSectionForm(request.POST)
         if form.is_valid():
-            result_dict_2, result_dict_3 = responsibility_operations(form)
-            grade_result_dict = grade_operations(result_dict_3)
-            return render(request, 'evacalc/responsibility_section.html', {'form': form,
-                                                                          'grade_result_dict': grade_result_dict,})
+            try:
+                result_dict_2, result_dict_3 = responsibility_operations(form)
+                grade_result_dict = grade_operations(result_dict_3)
+            except Exception:
+                return redirect('skills_section')
+            else:
+                return render(request, 'evacalc/responsibility_section.html', {'form': form,
+                                                                               'grade_result_dict': grade_result_dict,})
             #save_model(request.user, grade_result_dict)
             #return redirect('archive_date')
     elif request.method=="POST" and 'add_in_db' in request.POST:
