@@ -8,7 +8,7 @@ from .arrays import skills_arr, responsibility_arr, problems_solving_arr, union_
 
 import xlsxwriter
 import ast
-
+from math import ceil
 
 @login_required
 def archive_date(request):
@@ -105,8 +105,6 @@ def skills_section(request):
             else:
                 return render(request, 'evacalc/responsibility_section.html', {'form': form,
                                                                                'grade_result_dict': grade_result_dict,})
-            #save_model(request.user, grade_result_dict)
-            #return redirect('archive_date')
     elif request.method=="POST" and 'add_in_db' in request.POST:
         form = AddInDBForm(request.POST)
         if form.is_valid():
@@ -147,7 +145,7 @@ def problems_operations(form):
     value_of_problems_section, is_problems_section_logical = compute_problems_section(around_question, question_complexity)
     value_of_union_section, is_union_section_logical = compute_union_skills_and_problems(value_of_skills_section, 
                                                                                             value_of_problems_section)
-    value_of_problems_section = int(value_of_problems_section*100)
+    value_of_problems_section = int(ceil(value_of_problems_section*100))
     result_dict_2 = result_dict_1.copy()
     result_dict_2.update({'around_question': around_question,
                           'question_complexity': question_complexity,
