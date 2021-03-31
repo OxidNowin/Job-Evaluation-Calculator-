@@ -12,6 +12,8 @@
 
 .prof__item {
   display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .prof__item:not(:last-child) {
@@ -45,11 +47,19 @@
   font-size: 22px;
   width: 140px;
   text-align: center;
-  word-break: break-all;
 }
 
 .prof__sub-item:not(:last-child) {
   margin-right: 15px;
+}
+
+.prof__sub-title {
+  padding: 10px;
+  border: 2px solid var(--black-color);
+  font-size: 22px;
+  min-width: 140px;
+  text-align: center;
+  margin-bottom: 15px;
 }
 
 .prof__filters {
