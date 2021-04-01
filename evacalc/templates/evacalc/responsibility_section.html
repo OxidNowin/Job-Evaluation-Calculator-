@@ -133,7 +133,7 @@
     </div>
     <ul class="desc-list">
       <li class="desc-item desc-title">
-        Важность воздействия
+        Природа воздействия
       </li>
       <li class="desc-item">
         N - нет количественного измерения
@@ -204,19 +204,7 @@
     </div>
     <ul class="desc-list">
       <li class="desc-item desc-title">
-        Тип влияния - Количественная оценка влияния	
-      </li>
-      <li class="desc-item">
-        I - 80.000 $ - 800.000  $
-      </li>
-      <li class="desc-item">
-        II - 800.000 $ - 8 млн $
-      </li>
-      <li class="desc-item">
-        III - 8 млн $ - 80 млн $
-      </li>
-      <li class="desc-item">
-        IV - 80 млн $ - 800 млн $
+        Важность воздействия
       </li>
       <li class="desc-item">
         R - предоставление информации по затратам
@@ -229,6 +217,18 @@
       </li>
       <li class="desc-item">
         P - полная ответственность в установленных рамках
+      </li>
+      <li class="desc-item">
+        I - 80.000 $ - 800.000  $
+      </li>
+      <li class="desc-item">
+        II - 800.000 $ - 8 млн $
+      </li>
+      <li class="desc-item">
+        III - 8 млн $ - 80 млн $
+      </li>
+      <li class="desc-item">
+        IV - 80 млн $ - 800 млн $
       </li>
     </ul>
   </div>
@@ -243,7 +243,7 @@
     <div class="error-logic">
       {{ grade_result_dict.title}}
       {{ grade_result_dict.short_profile }}
-      {{ grade_result_dict.hard_skills }}
+      <p>{{ grade_result_dict.hard_skills }}
       {{ grade_result_dict.knowledge }}
       {{ grade_result_dict.soft_skills }}
       {{ grade_result_dict.value_of_skills_section }}
@@ -255,14 +255,14 @@
       {{ grade_result_dict.nature_impact }}
       {{ grade_result_dict.impact_importance }}
       {{ grade_result_dict.sum_of_values }}
-      {{ grade_result_dict.grade }}
+      {{ grade_result_dict.grade }}</p>
     </div>
     {% else %}
     <div class="success-svg"></div>
     <div class="success-logic">
       {{ grade_result_dict.title}}
       {{ grade_result_dict.short_profile }}
-      {{ grade_result_dict.hard_skills }}
+      <p>{{ grade_result_dict.hard_skills }}
       {{ grade_result_dict.knowledge }}
       {{ grade_result_dict.soft_skills }}
       {{ grade_result_dict.value_of_skills_section }}
@@ -274,7 +274,7 @@
       {{ grade_result_dict.nature_impact }}
       {{ grade_result_dict.impact_importance }}
       {{ grade_result_dict.sum_of_values }}
-      {{ grade_result_dict.grade }}
+      {{ grade_result_dict.grade }}</p>
     </div>
     {% endif %}
     <div class="error__button-wrapper">

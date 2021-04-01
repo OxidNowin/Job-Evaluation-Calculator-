@@ -50,11 +50,16 @@ impact_importance_choices = [('', '-'),
 
 
 class FirstSectionForm(forms.Form):
-  title = forms.CharField(max_length=25)
+  title = forms.CharField(label="Название должности", max_length=250)
   short_profile = forms.ChoiceField(widget=forms.Select, choices=profile_choices)
   hard_skills = forms.ChoiceField(widget=forms.Select, choices=hard_skills_choices)
   knowledge = forms.ChoiceField(widget=forms.Select, choices=knowledge_choices)
   soft_skills = forms.ChoiceField(widget=forms.Select, choices=soft_skills_choices)
+
+  def __init__(self, *args, **kwargs):
+        super(FirstSectionForm, self).__init__(*args, **kwargs)
+        self.fields['title'].widget.attrs={
+            'placeholder': 'Введите название должности'}
 
 
 class SecondSectionForm(forms.Form):
