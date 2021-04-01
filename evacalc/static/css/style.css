@@ -271,9 +271,21 @@ select::-ms-expand {
 
 /* header */
 
-.header__right {
+.header-loginin__right {
+  max-width: 390px;
+  width: 100%;
   display: flex;
   align-items: center;
+}
+
+.header-loginin__center {
+  max-width: 390px;
+  width: 100%;
+}
+
+.header-loginin__left {
+  max-width: 390px;
+  width: 100%;
 }
 
 .header {
@@ -299,11 +311,6 @@ select::-ms-expand {
   text-transform: uppercase;
 }
 
-.footer__number {
-  color: var(--white-color);
-  text-decoration: none;
-  transition: color 0.3s ease-in-out;
-}
 
 .header__autorisation{
   display: block;
@@ -574,6 +581,13 @@ select::-ms-expand {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+
+.footer__number {
+  color: var(--white-color);
+  text-decoration: none;
+  transition: color 0.3s ease-in-out;
 }
 
 /* media  */
