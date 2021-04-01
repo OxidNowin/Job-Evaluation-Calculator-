@@ -1,8 +1,8 @@
 /* prof */
 
 .prof__container {
-  padding-top: 20px;
-  padding-bottom: 20px;
+  padding-top: 50px;
+  padding-bottom: 50px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -49,6 +49,7 @@
   text-align: center;
 }
 
+
 .prof__sub-item:not(:last-child) {
   margin-right: 15px;
 }
@@ -60,14 +61,13 @@
   min-width: 140px;
   text-align: center;
   margin-bottom: 15px;
+  border: none;
 }
 
 .prof__filters {
   margin-bottom: 50px;
-  margin-left: 110px;
   display: flex;
   flex-wrap: wrap;
-  align-self: flex-start;
 }
 
 .prof__download-button {
@@ -99,6 +99,10 @@
   color: var(--a-hover);
 }
 
-.pros__last {
+.prof__last {
   color: var(--red-color);
+}
+
+.prof__last-text {
+  color: var(--black-color);
 }

@@ -103,7 +103,8 @@
     text-align: center;
     overflow-wrap: anywhere;
   }
-  .error-logic p{
+  .error-logic span{
+    display: block;
     color: var(--red-color);
   }
 
@@ -116,7 +117,8 @@
     overflow-wrap: anywhere;
   }
 
-  .success-logic p{
+  .success-logic span{
+    display: block;
     color: var(--green-color);
   }
 /* hr */
@@ -168,6 +170,7 @@
   color: var(--white-color);
   font-size: 1em;
   margin-bottom: 20px;
+  text-align: center;
 }
 
 .hr__form-solving {
