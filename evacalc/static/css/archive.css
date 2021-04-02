@@ -106,3 +106,7 @@
 .prof__last-text {
   color: var(--black-color);
 }
+
+.prof__button {
+  margin-right: 15px;
+}
