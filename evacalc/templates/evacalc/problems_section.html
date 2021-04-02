@@ -3,6 +3,43 @@
 {% load staticfiles %}
 {% block content %}
 
+{% if logical_message_2 %}
+<div class="error-container">
+  <div class="error">
+    <div class="error-svg"></div>
+    <h2 class="error-text">Нелогичное сочетание</h2>
+    <div class="error-logic">
+      {{ result_dict_2.around_question }}
+      {{ result_dict_2.question_complexity }}
+      {{ result_dict_2.value_of_problems_section }}
+      {{ result_dict_2.value_of_union_section }}  
+    </div>            
+    <div class="error__button-wrapper">
+      <form method="POST">
+        {% csrf_token %}
+        {% if not job %}
+        <input name="job_input" value="0" type="hidden" id="id_job_input">
+        {% else %}
+        <input name="job_input" value="{{ job }}" type="hidden" id="id_job_input">
+        {% endif %}
+        <input type="hidden" name="back_dict" value="{{ result_dict_1 }}" id="id_back_dict">
+        <input type="submit" value="Пересчитать" name="go_to_2" class="error-button typical__button_small">
+      </form>
+      <form method="POST">
+        {% csrf_token %}
+        {% if not job %}
+        <input name="job_input" value="0" type="hidden" id="id_job_input">
+        {% else %}
+        <input name="job_input" value="{{ job }}" type="hidden" id="id_job_input">
+        {% endif %}
+        <input id="id_unlogical_result" value="{{ result_dict_2 }}" type="hidden" name="unlogical_result">
+        <input type="submit" value="Продолжить" name="unlogical_post2" class="typical__button_small">
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 <div class="desc-container desc4">
   <div class="desc">
     <div class="desc-close">
@@ -153,35 +190,6 @@
     </ul>
   </div>
 </div>
-
-{% if logical_message_2 %}
-<div class="error-container">
-  <div class="error">
-    <div class="error-svg"></div>
-    <h2 class="error-text">Нелогичное сочетание</h2>
-    <div class="error-logic">
-      {{ result_dict_2.around_question }}
-      {{ result_dict_2.question_complexity }}
-      {{ result_dict_2.value_of_problems_section }}
-      {{ result_dict_2.value_of_union_section }}  
-    </div>            
-    <div class="error__button-wrapper">
-      <form method="POST">
-        {% csrf_token %}
-        <input name="job_input" value="{{ job }}" type="hidden" id="id_job_input">
-        <input type="hidden" name="back_dict" value="{{ result_dict_1 }}" id="id_back_dict">
-        <input type="submit" value="Пересчитать" name="go_to_2" class="error-button typical__button_small">
-      </form>
-      <form method="POST">
-        {% csrf_token %}
-        <input name="job_input" value="{{ job }}" type="hidden" id="id_job_input">
-        <input id="id_unlogical_result" value="{{ result_dict_2 }}" type="hidden" name="unlogical_result">
-        <input type="submit" value="Продолжить" name="unlogical_post2" class="typical__button_small">
-      </form>
-    </div>
-  </div>
-</div>
-{% endif %}
 
 {% include "include/header.html" %}
     <main>

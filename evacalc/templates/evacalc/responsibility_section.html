@@ -3,6 +3,68 @@
 {% load staticfiles %}
 {% block content %}
 
+
+{% if grade_result_dict %}
+<div class="error-container">
+  <div class="error">
+    {% if grade_result_dict.is_skills_section_logical == False or grade_result_dict.is_problems_section_logical == False or grade_result_dict.is_union_section_logical == False or grade_result_dict.is_responsibility_section_logical == False %}
+    <div class="error-svg"></div>
+    <h2 class="error-text">Нелогичное сочетание</h2>
+    <div class="error-logic">
+      {{ grade_result_dict.title}}
+      {{ grade_result_dict.short_profile }}
+      <span>{{ grade_result_dict.hard_skills }}
+      {{ grade_result_dict.knowledge }}
+      {{ grade_result_dict.soft_skills }}
+      {{ grade_result_dict.value_of_skills_section }}
+      {{ grade_result_dict.around_question }}
+      {{ grade_result_dict.question_complexity }}
+      {{ grade_result_dict.value_of_problems_section }}
+      {{ grade_result_dict.value_of_union_section }}
+      {{ grade_result_dict.freedom_action }}
+      {{ grade_result_dict.nature_impact }}
+      {{ grade_result_dict.impact_importance }}
+      {{ grade_result_dict.sum_of_values }}
+      {{ grade_result_dict.grade }}</span>
+    </div>
+    {% else %}
+    <div class="success-svg"></div>
+    <div class="success-logic">
+      {{ grade_result_dict.title}}
+      {{ grade_result_dict.short_profile }}
+      <span>{{ grade_result_dict.hard_skills }}
+      {{ grade_result_dict.knowledge }}
+      {{ grade_result_dict.soft_skills }}
+      {{ grade_result_dict.value_of_skills_section }}
+      {{ grade_result_dict.around_question }}
+      {{ grade_result_dict.question_complexity }}
+      {{ grade_result_dict.value_of_problems_section }}
+      {{ grade_result_dict.value_of_union_section }}
+      {{ grade_result_dict.freedom_action }}
+      {{ grade_result_dict.nature_impact }}
+      {{ grade_result_dict.impact_importance }}
+      {{ grade_result_dict.sum_of_values }}
+      {{ grade_result_dict.grade }}</span>
+    </div>
+    {% endif %}
+    <div class="error__button-wrapper">
+      <a href="{% url 'skills_section' %}" class="error-button typical__button_small">Пересчитать</a>
+      <form method="POST">
+        {% csrf_token %}
+        {% if not job %}
+        <input name="job_input" value="0" type="hidden" id="id_job_input">
+        {% else %}
+        <input name="job_input" value="{{ job }}" type="hidden" id="id_job_input">
+        {% endif %}
+        <input type="hidden" name="last_dict" value="{{ grade_result_dict }}" id="id_last_dict">
+        <input type="submit" value="Добавить в таблицу" name="add_in_db" class="typical__button_small">
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
 <div class="desc-container desc6">
   <div class="desc">
     <div class="desc-close">
@@ -234,61 +296,6 @@
   </div>
 </div>
 
-{% if grade_result_dict %}
-<div class="error-container">
-  <div class="error">
-    {% if grade_result_dict.is_skills_section_logical == False or grade_result_dict.is_problems_section_logical == False or grade_result_dict.is_union_section_logical == False or grade_result_dict.is_responsibility_section_logical == False %}
-    <div class="error-svg"></div>
-    <h2 class="error-text">Нелогичное сочетание</h2>
-    <div class="error-logic">
-      {{ grade_result_dict.title}}
-      {{ grade_result_dict.short_profile }}
-      <span>{{ grade_result_dict.hard_skills }}
-      {{ grade_result_dict.knowledge }}
-      {{ grade_result_dict.soft_skills }}
-      {{ grade_result_dict.value_of_skills_section }}
-      {{ grade_result_dict.around_question }}
-      {{ grade_result_dict.question_complexity }}
-      {{ grade_result_dict.value_of_problems_section }}
-      {{ grade_result_dict.value_of_union_section }}
-      {{ grade_result_dict.freedom_action }}
-      {{ grade_result_dict.nature_impact }}
-      {{ grade_result_dict.impact_importance }}
-      {{ grade_result_dict.sum_of_values }}
-      {{ grade_result_dict.grade }}</span>
-    </div>
-    {% else %}
-    <div class="success-svg"></div>
-    <div class="success-logic">
-      {{ grade_result_dict.title}}
-      {{ grade_result_dict.short_profile }}
-      <span>{{ grade_result_dict.hard_skills }}
-      {{ grade_result_dict.knowledge }}
-      {{ grade_result_dict.soft_skills }}
-      {{ grade_result_dict.value_of_skills_section }}
-      {{ grade_result_dict.around_question }}
-      {{ grade_result_dict.question_complexity }}
-      {{ grade_result_dict.value_of_problems_section }}
-      {{ grade_result_dict.value_of_union_section }}
-      {{ grade_result_dict.freedom_action }}
-      {{ grade_result_dict.nature_impact }}
-      {{ grade_result_dict.impact_importance }}
-      {{ grade_result_dict.sum_of_values }}
-      {{ grade_result_dict.grade }}</span>
-    </div>
-    {% endif %}
-    <div class="error__button-wrapper">
-      <a href="{% url 'skills_section' %}" class="error-button typical__button_small">Пересчитать</a>
-      <form method="POST">
-        {% csrf_token %}
-        <input name="job_input" value="{{ job }}" type="hidden" id="id_job_input">
-        <input type="hidden" name="last_dict" value="{{ grade_result_dict }}" id="id_last_dict">
-        <input type="submit" value="Добавить в таблицу" name="add_in_db" class="typical__button_small">
-      </form>
-    </div>
-  </div>
-</div>
-{% endif %}
 
 {% include "include/header.html" %}
         <main>

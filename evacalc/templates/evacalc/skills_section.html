@@ -16,7 +16,11 @@
     </div>          
   <form method="POST">
     {% csrf_token %}
+    {% if not job %}
+    <input name="job_input" value="0" type="hidden" id="id_job_input">
+    {% else %}
     <input name="job_input" value="{{ job }}" type="hidden" id="id_job_input">
+    {% endif %}
     <input id="id_unlogical_result" value="{{ result_dict_1 }}" type="hidden" name="unlogical_result">
     <div class="error__button-wrapper">
       <a href="{% url 'skills_section' %}" class="error-button typical__button_small">Пересчитать</a>
