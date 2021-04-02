@@ -139,16 +139,16 @@
         N - нет количественного измерения
       </li>
       <li class="desc-item">
-        1 - разовые услуги не связанные с процессами
+        1 - 80.000 $ - 800.000  $
       </li>
       <li class="desc-item">
-        2 - предоставление информации в рамках процессов. Работа или ремонт несложного оборудования
+        2 - 800.000 $ - 8 млн $
       </li>
       <li class="desc-item">
-        3 - сведение информации из различных источников. Работа или ремонт различного оборудования
+        3 - 8 млн $ - 80 млн $
       </li>
       <li class="desc-item">
-        4 - предоставления аналитики с составлением прогнозов. Работа или ремонт критически важного оборудования.
+        4 - 80 млн $ - 800 млн $
       </li>
     </ul>
   </div>
@@ -219,16 +219,16 @@
         P - полная ответственность в установленных рамках
       </li>
       <li class="desc-item">
-        I - 80.000 $ - 800.000  $
+        I - разовые услуги не связанные с процессами
       </li>
       <li class="desc-item">
-        II - 800.000 $ - 8 млн $
+        II - предоставление информации в рамках процессов. Работа или ремонт несложного оборудования
       </li>
       <li class="desc-item">
-        III - 8 млн $ - 80 млн $
+        III - сведение информации из различных источников. Работа или ремонт различного оборудования
       </li>
       <li class="desc-item">
-        IV - 80 млн $ - 800 млн $
+        IV - предоставления аналитики с составлением прогнозов. Работа или ремонт критически важного оборудования.
       </li>
     </ul>
   </div>
@@ -281,6 +281,7 @@
       <a href="{% url 'skills_section' %}" class="error-button typical__button_small">Пересчитать</a>
       <form method="POST">
         {% csrf_token %}
+        <input name="job_input" value="{{ job }}" type="hidden" id="id_job_input">
         <input type="hidden" name="last_dict" value="{{ grade_result_dict }}" id="id_last_dict">
         <input type="submit" value="Добавить в таблицу" name="add_in_db" class="typical__button_small">
       </form>
@@ -337,6 +338,11 @@
                       </div>
                     </div>
                 </div>
+                {% if not job %}
+                <input name="job_input" value="0" type="hidden" id="id_job_input">
+                {% else %}
+                <input name="job_input" value="{{ job }}" type="hidden" id="id_job_input">
+                {% endif %}
                 <div class="hr__button-wrapper">
                   <button class="typical__button hr__assess-button" type="submit" name="evaluate3">Оценить</button>
                   <button class="typical__button hr__form-button" type="submit" name="next_step3">Далее</button>

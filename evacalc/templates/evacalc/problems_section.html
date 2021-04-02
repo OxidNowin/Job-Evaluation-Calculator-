@@ -168,11 +168,13 @@
     <div class="error__button-wrapper">
       <form method="POST">
         {% csrf_token %}
+        <input name="job_input" value="{{ job }}" type="hidden" id="id_job_input">
         <input type="hidden" name="back_dict" value="{{ result_dict_1 }}" id="id_back_dict">
         <input type="submit" value="Пересчитать" name="go_to_2" class="error-button typical__button_small">
       </form>
       <form method="POST">
         {% csrf_token %}
+        <input name="job_input" value="{{ job }}" type="hidden" id="id_job_input">
         <input id="id_unlogical_result" value="{{ result_dict_2 }}" type="hidden" name="unlogical_result">
         <input type="submit" value="Продолжить" name="unlogical_post2" class="typical__button_small">
       </form>
@@ -223,6 +225,11 @@
                   </div>
                 </div>
             </div>
+            {% if not job %}
+            <input name="job_input" value="0" type="hidden" id="id_job_input">
+            {% else %}
+            <input name="job_input" value="{{ job }}" type="hidden" id="id_job_input">
+            {% endif %}
             <div class="hr__button-wrapper">
               <button class="typical__button hr__assess-button" type="submit" name="evaluate2">Оценить</button>
               <button class="typical__button hr__form-button" type="submit" name="next_step2">Далее</button>

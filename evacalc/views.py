@@ -1,9 +1,13 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 
 from .models import JobEvaluation
-from .forms import FirstSectionForm, SecondSectionForm, ThirdSectionForm, UnlogicalPostForm, SaveUnlogicalDictAndBack,AddInDBForm
+from .forms import (
+    FirstSectionForm, SecondSectionForm, ThirdSectionForm,
+    UnlogicalPostForm, SaveUnlogicalDictAndBack,AddInDBForm
+    )
 from .arrays import skills_arr, responsibility_arr, problems_solving_arr, union_arr, grade_arr
 
 import xlsxwriter
@@ -12,10 +16,138 @@ from math import ceil
 
 @login_required
 def archive_date(request):
-    if request.method == "POST":
+    if request.method == "POST" and 'delete_job' in request.POST:
         job_id = list(request.POST.values())[1]
         redirect_str = "archive_date"
         delete_job_evaluation(job_id, redirect_str)
+    elif request.method == "POST" and 'recalculate' in request.POST:
+        job_id = list(request.POST.values())[1]
+        job = list(JobEvaluation.objects.filter(id=job_id).values())[0]
+        job.pop('created_date')
+        job_dict = {'title': job['title'],
+                    'short_profile': job['short_profile'],
+                    'hard_skills': job['hard_skills'],
+                    'knowledge': job['knowledge'],
+                    'soft_skills': job['soft_skills']}
+        form = FirstSectionForm(job_dict)
+        return render(request, 'evacalc/skills_section.html', {'form': form,
+                                                                'job': job})
+    elif request.method == "POST" and 'evaluate' in request.POST:
+        form = FirstSectionForm(request.POST)
+        if form.is_valid():
+            job = form.cleaned_data["job_input"]
+            result_dict_1 = skills_operations(form)
+            return render(request, 'evacalc/skills_section.html', {'form': form,
+                                                                  'result_dict_1': result_dict_1,
+                                                                  'job': job})
+    elif request.method == 'POST' and 'next_step' in request.POST:
+        form = FirstSectionForm(request.POST)
+        if form.is_valid():
+            job = ast.literal_eval(form.cleaned_data["job_input"])
+            result_dict_1 = skills_operations(form)
+            job_dict = {'around_question': job['around_question'],
+                        'question_complexity': job['question_complexity']}
+            form = SecondSectionForm(job_dict)
+            if result_dict_1['is_skills_section_logical'] is False:
+                return render(request, "evacalc/skills_section.html", {'form': form,
+                                                                      'logical_message_1': 'Нелогичное сочетание!',
+                                                                      'result_dict_1': result_dict_1,
+                                                                      'job': job})
+            return render(request, 'evacalc/problems_section.html', {'form': form,
+                                                                     'result_dict_1':result_dict_1,
+                                                                     'job': job})
+    elif request.method == 'POST' and 'unlogical_post1' in request.POST:
+        form = UnlogicalPostForm(request.POST)
+        if form.is_valid():
+            job = ast.literal_eval(form.cleaned_data["job_input"])
+            job_dict = {'around_question': job['around_question'],
+                        'question_complexity': job['question_complexity']}
+            result_dict_1 = form.cleaned_data['unlogical_result']
+            form = SecondSectionForm(job_dict)
+            return render(request, 'evacalc/problems_section.html', {'form': form,
+                                                                     'result_dict_1':result_dict_1,
+                                                                     'job': job})
+    elif request.method=='POST' and 'evaluate2' in request.POST:
+        form = SecondSectionForm(request.POST)
+        if form.is_valid():
+            job = form.cleaned_data["job_input"]
+            result_dict_1, result_dict_2 = problems_operations(form)   
+            return render(request, 'evacalc/problems_section.html', {'form': form,
+                                                                     'result_dict_2': result_dict_2,
+                                                                      'result_dict_1': result_dict_1,
+                                                                      'job': job})
+    elif request.method=='POST' and 'next_step2' in request.POST:
+        form = SecondSectionForm(request.POST)
+        if form.is_valid():
+            job = ast.literal_eval(form.cleaned_data["job_input"])
+            result_dict_1, result_dict_2 = problems_operations(form)
+            job_dict = {'freedom_action': job['freedom_action'],
+                        'nature_impact': job['nature_impact'],
+                        'impact_importance': job['impact_importance']}
+            form = ThirdSectionForm(job_dict) 
+            if (result_dict_2['is_problems_section_logical'] and result_dict_2['is_union_section_logical'] and
+                result_dict_2['is_skills_section_logical']) is False:
+                return render(request, "evacalc/problems_section.html", {'form': form,
+                                                                         'logical_message_2': 'Нелогичное сочетание!',
+                                                                         'result_dict_2': result_dict_2,
+                                                                         'result_dict_1': result_dict_1,
+                                                                         'job': job})
+            return render(request, 'evacalc/responsibility_section.html', {'form': form,
+                                                                           'result_dict_2':result_dict_2,
+                                                                           'job': job})
+    elif request.method == 'POST' and 'unlogical_post2' in request.POST:
+        form = UnlogicalPostForm(request.POST)
+        if form.is_valid():
+            job = ast.literal_eval(form.cleaned_data["job_input"])
+            job_dict = {'freedom_action': job['freedom_action'],
+                        'nature_impact': job['nature_impact'],
+                        'impact_importance': job['impact_importance']}
+            result_dict_2 = form.cleaned_data['unlogical_result']
+            form = ThirdSectionForm(job_dict)
+            return render(request, 'evacalc/responsibility_section.html', {'form': form,
+                                                                           'result_dict_2':result_dict_2,
+                                                                           'job': job})
+    elif request.method=='POST' and 'go_to_2' in request.POST:
+        form = SaveUnlogicalDictAndBack(request.POST)
+        if form.is_valid():
+            job = ast.literal_eval(form.cleaned_data["job_input"])
+            job_dict = {'around_question': job['around_question'],
+                        'question_complexity': job['question_complexity']}
+            result_dict_1 = form.cleaned_data['back_dict']
+            form = SecondSectionForm(job_dict)
+            return render(request, 'evacalc/problems_section.html', {'form': form,
+                                                                     'result_dict_1': result_dict_1,
+                                                                     'job': job})
+    elif request.method=='POST' and 'evaluate3' in request.POST:
+        form = ThirdSectionForm(request.POST)
+        if form.is_valid():
+            job = form.cleaned_data["job_input"]
+            result_dict_2,result_dict_3 = responsibility_operations(form)   
+            return render(request, 'evacalc/responsibility_section.html', {'form':form,
+                                                                           'result_dict_2':result_dict_2,
+                                                                           'result_dict_3':result_dict_3,
+                                                                           'job':job})
+    elif request.method=='POST' and 'next_step3' in request.POST:
+        form = ThirdSectionForm(request.POST)
+        if form.is_valid():
+            try:
+                job = form.cleaned_data["job_input"]
+                result_dict_2, result_dict_3 = responsibility_operations(form)
+                grade_result_dict = grade_operations(result_dict_3)
+            except Exception:
+                return redirect('skills_section')
+            else:
+                return render(request, 'evacalc/responsibility_section.html', {'form': form,
+                                                                               'grade_result_dict': grade_result_dict,
+                                                                               'job': job})
+    elif request.method=="POST" and 'add_in_db' in request.POST:
+        form = AddInDBForm(request.POST)
+        if form.is_valid():
+            job = ast.literal_eval(form.cleaned_data["job_input"])
+            job_id = job['id']
+            grade_result_dict = ast.literal_eval(form.cleaned_data['last_dict'])
+            update_model(request.user, grade_result_dict, job_id)
+            return redirect('archive_date')
     jobs_list = JobEvaluation.objects.order_by('-created_date').filter(user=request.user)
     context = {'jobs_list': jobs_list}
     return render(request, 'evacalc/archive.html', context)
@@ -23,10 +155,138 @@ def archive_date(request):
 
 @login_required
 def archive_grade(request):
-    if request.method == "POST":
+    if request.method == "POST" and 'delete_job' in request.POST:
         job_id = list(request.POST.values())[1]
         redirect_str = "archive_grade"
         delete_job_evaluation(job_id, redirect_str)
+    elif request.method == "POST" and 'recalculate' in request.POST:
+        job_id = list(request.POST.values())[1]
+        job = list(JobEvaluation.objects.filter(id=job_id).values())[0]
+        job.pop('created_date')
+        job_dict = {'title': job['title'],
+                    'short_profile': job['short_profile'],
+                    'hard_skills': job['hard_skills'],
+                    'knowledge': job['knowledge'],
+                    'soft_skills': job['soft_skills']}
+        form = FirstSectionForm(job_dict)
+        return render(request, 'evacalc/skills_section.html', {'form': form,
+                                                                'job': job})
+    elif request.method == "POST" and 'evaluate' in request.POST:
+        form = FirstSectionForm(request.POST)
+        if form.is_valid():
+            job = form.cleaned_data["job_input"]
+            result_dict_1 = skills_operations(form)
+            return render(request, 'evacalc/skills_section.html', {'form': form,
+                                                                  'result_dict_1': result_dict_1,
+                                                                  'job': job})
+    elif request.method == 'POST' and 'next_step' in request.POST:
+        form = FirstSectionForm(request.POST)
+        if form.is_valid():
+            job = ast.literal_eval(form.cleaned_data["job_input"])
+            result_dict_1 = skills_operations(form)
+            job_dict = {'around_question': job['around_question'],
+                        'question_complexity': job['question_complexity']}
+            form = SecondSectionForm(job_dict)
+            if result_dict_1['is_skills_section_logical'] is False:
+                return render(request, "evacalc/skills_section.html", {'form': form,
+                                                                      'logical_message_1': 'Нелогичное сочетание!',
+                                                                      'result_dict_1': result_dict_1,
+                                                                      'job': job})
+            return render(request, 'evacalc/problems_section.html', {'form': form,
+                                                                     'result_dict_1':result_dict_1,
+                                                                     'job': job})
+    elif request.method == 'POST' and 'unlogical_post1' in request.POST:
+        form = UnlogicalPostForm(request.POST)
+        if form.is_valid():
+            job = ast.literal_eval(form.cleaned_data["job_input"])
+            job_dict = {'around_question': job['around_question'],
+                        'question_complexity': job['question_complexity']}
+            result_dict_1 = form.cleaned_data['unlogical_result']
+            form = SecondSectionForm(job_dict)
+            return render(request, 'evacalc/problems_section.html', {'form': form,
+                                                                     'result_dict_1':result_dict_1,
+                                                                     'job': job})
+    elif request.method=='POST' and 'evaluate2' in request.POST:
+        form = SecondSectionForm(request.POST)
+        if form.is_valid():
+            job = form.cleaned_data["job_input"]
+            result_dict_1, result_dict_2 = problems_operations(form)   
+            return render(request, 'evacalc/problems_section.html', {'form': form,
+                                                                     'result_dict_2': result_dict_2,
+                                                                      'result_dict_1': result_dict_1,
+                                                                      'job': job})
+    elif request.method=='POST' and 'next_step2' in request.POST:
+        form = SecondSectionForm(request.POST)
+        if form.is_valid():
+            job = ast.literal_eval(form.cleaned_data["job_input"])
+            result_dict_1, result_dict_2 = problems_operations(form)
+            job_dict = {'freedom_action': job['freedom_action'],
+                        'nature_impact': job['nature_impact'],
+                        'impact_importance': job['impact_importance']}
+            form = ThirdSectionForm(job_dict) 
+            if (result_dict_2['is_problems_section_logical'] and result_dict_2['is_union_section_logical'] and
+                result_dict_2['is_skills_section_logical']) is False:
+                return render(request, "evacalc/problems_section.html", {'form': form,
+                                                                         'logical_message_2': 'Нелогичное сочетание!',
+                                                                         'result_dict_2': result_dict_2,
+                                                                         'result_dict_1': result_dict_1,
+                                                                         'job': job})
+            return render(request, 'evacalc/responsibility_section.html', {'form': form,
+                                                                           'result_dict_2':result_dict_2,
+                                                                           'job': job})
+    elif request.method == 'POST' and 'unlogical_post2' in request.POST:
+        form = UnlogicalPostForm(request.POST)
+        if form.is_valid():
+            job = ast.literal_eval(form.cleaned_data["job_input"])
+            job_dict = {'freedom_action': job['freedom_action'],
+                        'nature_impact': job['nature_impact'],
+                        'impact_importance': job['impact_importance']}
+            result_dict_2 = form.cleaned_data['unlogical_result']
+            form = ThirdSectionForm(job_dict)
+            return render(request, 'evacalc/responsibility_section.html', {'form': form,
+                                                                           'result_dict_2':result_dict_2,
+                                                                           'job': job})
+    elif request.method=='POST' and 'go_to_2' in request.POST:
+        form = SaveUnlogicalDictAndBack(request.POST)
+        if form.is_valid():
+            job = ast.literal_eval(form.cleaned_data["job_input"])
+            job_dict = {'around_question': job['around_question'],
+                        'question_complexity': job['question_complexity']}
+            result_dict_1 = form.cleaned_data['back_dict']
+            form = SecondSectionForm(job_dict)
+            return render(request, 'evacalc/problems_section.html', {'form': form,
+                                                                     'result_dict_1': result_dict_1,
+                                                                     'job': job})
+    elif request.method=='POST' and 'evaluate3' in request.POST:
+        form = ThirdSectionForm(request.POST)
+        if form.is_valid():
+            job = form.cleaned_data["job_input"]
+            result_dict_2,result_dict_3 = responsibility_operations(form)   
+            return render(request, 'evacalc/responsibility_section.html', {'form':form,
+                                                                           'result_dict_2':result_dict_2,
+                                                                           'result_dict_3':result_dict_3,
+                                                                           'job':job})
+    elif request.method=='POST' and 'next_step3' in request.POST:
+        form = ThirdSectionForm(request.POST)
+        if form.is_valid():
+            try:
+                job = form.cleaned_data["job_input"]
+                result_dict_2, result_dict_3 = responsibility_operations(form)
+                grade_result_dict = grade_operations(result_dict_3)
+            except Exception:
+                return redirect('skills_section')
+            else:
+                return render(request, 'evacalc/responsibility_section.html', {'form': form,
+                                                                               'grade_result_dict': grade_result_dict,
+                                                                               'job': job})
+    elif request.method=="POST" and 'add_in_db' in request.POST:
+        form = AddInDBForm(request.POST)
+        if form.is_valid():
+            job = ast.literal_eval(form.cleaned_data["job_input"])
+            job_id = job['id']
+            grade_result_dict = ast.literal_eval(form.cleaned_data['last_dict'])
+            update_model(request.user, grade_result_dict, job_id)
+            return redirect('archive_date')
     jobs_list = JobEvaluation.objects.order_by('-grade').filter(user=request.user)
     context = {'jobs_list': jobs_list}
     return render(request, 'evacalc/archive.html', context)
@@ -245,8 +505,8 @@ def grade_determine(sum_of_values):
 
 
 def delete_job_evaluation(id, redirect_str):
-    job_name = JobEvaluation.objects.get(id=id)
-    job_name.delete()
+    job = JobEvaluation.objects.get(id=id)
+    job.delete()
     return redirect(redirect_str)
 
 
@@ -377,3 +637,26 @@ def save_model(username, grade_dict):
         sum_of_values = grade_dict['sum_of_values'],
         grade = grade_dict['grade'])
     job_evaluation_save.save()
+
+
+def update_model(username, grade_dict, job_id):
+    job_update = JobEvaluation(
+        id = job_id,
+        title = grade_dict['title'],
+        user = username,
+        short_profile = grade_dict['short_profile'],
+        hard_skills = grade_dict['hard_skills'],
+        knowledge = grade_dict['knowledge'],
+        soft_skills = grade_dict['soft_skills'],
+        value_of_skills_section = grade_dict['value_of_skills_section'],
+        around_question = grade_dict['around_question'],
+        question_complexity = grade_dict['question_complexity'],
+        value_of_problems_section = int(grade_dict['value_of_problems_section']),
+        value_of_union_section = grade_dict['value_of_union_section'],
+        freedom_action = grade_dict['freedom_action'],
+        nature_impact = grade_dict['nature_impact'],
+        impact_importance = grade_dict['impact_importance'],
+        value_of_responsibility_section = grade_dict['value_of_responsibility_section'],
+        sum_of_values = grade_dict['sum_of_values'],
+        grade = grade_dict['grade'])
+    job_update.save()

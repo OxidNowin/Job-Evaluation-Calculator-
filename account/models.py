@@ -55,6 +55,9 @@ class MyUser(AbstractBaseUser):
     null=True,
     blank=True
     )
+    """activity_time = models.DateField(
+                'Дата окончания пользования',
+                )"""
 
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
