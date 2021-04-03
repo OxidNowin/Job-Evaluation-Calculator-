@@ -52,12 +52,13 @@
       <form method="POST">
         {% csrf_token %}
         {% if not job %}
+        <input type="submit" value="Добавить в таблицу" name="add_in_db" class="typical__button_small">
         <input name="job_input" value="0" type="hidden" id="id_job_input">
         {% else %}
         <input name="job_input" value="{{ job }}" type="hidden" id="id_job_input">
+        <input type="submit" value="Переоценить" name="add_in_db" class="typical__button_small">
         {% endif %}
         <input type="hidden" name="last_dict" value="{{ grade_result_dict }}" id="id_last_dict">
-        <input type="submit" value="Добавить в таблицу" name="add_in_db" class="typical__button_small">
       </form>
     </div>
   </div>
