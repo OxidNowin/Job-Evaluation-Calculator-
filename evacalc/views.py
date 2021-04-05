@@ -2,8 +2,10 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django.db.models import F
 
 from .models import JobEvaluation
+from account.models import MyUser 
 from .forms import (
     FirstSectionForm, SecondSectionForm, ThirdSectionForm,
     UnlogicalPostForm, SaveUnlogicalDictAndBack,AddInDBForm
@@ -14,6 +16,12 @@ import xlsxwriter
 import ast
 from math import ceil
 
+
+@login_required
+def warning(request):
+    return render(request, 'evacalc/warning.html')
+
+
 @login_required
 def archive_date(request):
     if request.method == "POST" and 'delete_job' in request.POST:
@@ -21,17 +29,21 @@ def archive_date(request):
         redirect_str = "archive_date"
         delete_job_evaluation(job_id, redirect_str)
     elif request.method == "POST" and 'recalculate' in request.POST:
-        job_id = list(request.POST.values())[1]
-        job = list(JobEvaluation.objects.filter(id=job_id).values())[0]
-        job.pop('created_date')
-        job_dict = {'title': job['title'],
-                    'short_profile': job['short_profile'],
-                    'hard_skills': job['hard_skills'],
-                    'knowledge': job['knowledge'],
-                    'soft_skills': job['soft_skills']}
-        form = FirstSectionForm(job_dict)
-        return render(request, 'evacalc/skills_section.html', {'form': form,
-                                                                'job': job})
+        number_of_ratings = list(MyUser.objects.filter(email=request.user).values('number_of_ratings'))[0]
+        if number_of_ratings['number_of_ratings'] > 0:
+            job_id = list(request.POST.values())[1]
+            job = list(JobEvaluation.objects.filter(id=job_id).values())[0]
+            job.pop('created_date')
+            job_dict = {'title': job['title'],
+                        'short_profile': job['short_profile'],
+                        'hard_skills': job['hard_skills'],
+                        'knowledge': job['knowledge'],
+                        'soft_skills': job['soft_skills']}
+            form = FirstSectionForm(job_dict)
+            return render(request, 'evacalc/skills_section.html', {'form': form,
+                                                                    'job': job})
+        else:
+            return redirect("warning")
     elif request.method == "POST" and 'evaluate' in request.POST:
         form = FirstSectionForm(request.POST)
         if form.is_valid():
@@ -147,9 +159,11 @@ def archive_date(request):
             job_id = job['id']
             grade_result_dict = ast.literal_eval(form.cleaned_data['last_dict'])
             update_model(request.user, grade_result_dict, job_id)
+            decrease_number_of_ratings(request.user)
             return redirect('archive_date')
+    now_rating = list(MyUser.objects.filter(email=request.user).values('number_of_ratings'))[0]['number_of_ratings']
     jobs_list = JobEvaluation.objects.order_by('-created_date').filter(user=request.user)
-    context = {'jobs_list': jobs_list}
+    context = {'jobs_list': jobs_list,'now_rating':str(now_rating)}
     return render(request, 'evacalc/archive.html', context)
 
 
@@ -160,17 +174,21 @@ def archive_grade(request):
         redirect_str = "archive_grade"
         delete_job_evaluation(job_id, redirect_str)
     elif request.method == "POST" and 'recalculate' in request.POST:
-        job_id = list(request.POST.values())[1]
-        job = list(JobEvaluation.objects.filter(id=job_id).values())[0]
-        job.pop('created_date')
-        job_dict = {'title': job['title'],
-                    'short_profile': job['short_profile'],
-                    'hard_skills': job['hard_skills'],
-                    'knowledge': job['knowledge'],
-                    'soft_skills': job['soft_skills']}
-        form = FirstSectionForm(job_dict)
-        return render(request, 'evacalc/skills_section.html', {'form': form,
-                                                                'job': job})
+        number_of_ratings = list(MyUser.objects.filter(email=request.user).values('number_of_ratings'))[0]
+        if number_of_ratings['number_of_ratings'] > 0:
+            job_id = list(request.POST.values())[1]
+            job = list(JobEvaluation.objects.filter(id=job_id).values())[0]
+            job.pop('created_date')
+            job_dict = {'title': job['title'],
+                        'short_profile': job['short_profile'],
+                        'hard_skills': job['hard_skills'],
+                        'knowledge': job['knowledge'],
+                        'soft_skills': job['soft_skills']}
+            form = FirstSectionForm(job_dict)
+            return render(request, 'evacalc/skills_section.html', {'form': form,
+                                                                    'job': job})
+        else:
+            return redirect("warning")
     elif request.method == "POST" and 'evaluate' in request.POST:
         form = FirstSectionForm(request.POST)
         if form.is_valid():
@@ -286,30 +304,44 @@ def archive_grade(request):
             job_id = job['id']
             grade_result_dict = ast.literal_eval(form.cleaned_data['last_dict'])
             update_model(request.user, grade_result_dict, job_id)
+            decrease_number_of_ratings(request.user)
             return redirect('archive_date')
+    now_rating = list(MyUser.objects.filter(email=request.user).values('number_of_ratings'))[0]['number_of_ratings']
     jobs_list = JobEvaluation.objects.order_by('-grade').filter(user=request.user)
-    context = {'jobs_list': jobs_list}
+    context = {'jobs_list': jobs_list,'now_rating':str(now_rating)}
     return render(request, 'evacalc/archive.html', context)
 
 
 @login_required
 def skills_section(request):
     if request.method == "POST" and 'evaluate' in request.POST:
-        form = FirstSectionForm(request.POST)
-        if form.is_valid():
-            result_dict_1 = skills_operations(form)
-            return render(request, 'evacalc/skills_section.html', {'form': form,
-                                                                  'result_dict_1': result_dict_1,})
+        number_of_ratings = list(MyUser.objects.filter(email=request.user).values('number_of_ratings'))[0]
+        if number_of_ratings['number_of_ratings'] > 0:
+            form = FirstSectionForm(request.POST)
+            if form.is_valid():
+                now_rating = list(MyUser.objects.filter(email=request.user).values('number_of_ratings'))[0]['number_of_ratings']
+                result_dict_1 = skills_operations(form)
+                return render(request, 'evacalc/skills_section.html', {'form': form,
+                                                                      'result_dict_1': result_dict_1,
+                                                                      'now_rating':str(now_rating)})
+        else:
+            return redirect("warning")
     elif request.method == 'POST' and 'next_step' in request.POST:
-        form = FirstSectionForm(request.POST)
-        if form.is_valid():
-            result_dict_1 = skills_operations(form)
-            if result_dict_1['is_skills_section_logical'] is False:
-                return render(request, "evacalc/skills_section.html", {'form': form,
-                                                                      'logical_message_1': 'Нелогичное сочетание!',
-                                                                      'result_dict_1': result_dict_1})
-            return render(request, 'evacalc/problems_section.html', {'form': SecondSectionForm(),
-                                                                     'result_dict_1':result_dict_1})
+        number_of_ratings = list(MyUser.objects.filter(email=request.user).values('number_of_ratings'))[0]
+        if number_of_ratings['number_of_ratings'] > 0:
+            form = FirstSectionForm(request.POST)
+            if form.is_valid():
+                now_rating = list(MyUser.objects.filter(email=request.user).values('number_of_ratings'))[0]['number_of_ratings']
+                result_dict_1 = skills_operations(form)
+                if result_dict_1['is_skills_section_logical'] is False:
+                    return render(request, "evacalc/skills_section.html", {'form': form,
+                                                                          'logical_message_1': 'Нелогичное сочетание!',
+                                                                          'result_dict_1': result_dict_1})
+                return render(request, 'evacalc/problems_section.html', {'form': SecondSectionForm(),
+                                                                         'result_dict_1':result_dict_1,
+                                                                         'now_rating':str(now_rating)})
+        else:
+            return redirect("warning")
     elif request.method == 'POST' and 'unlogical_post1' in request.POST:
         form = UnlogicalPostForm(request.POST)
         if form.is_valid():
@@ -370,10 +402,13 @@ def skills_section(request):
         if form.is_valid():
             grade_result_dict = ast.literal_eval(form.cleaned_data['last_dict'])
             save_model(request.user, grade_result_dict)
+            decrease_number_of_ratings(request.user)
             return redirect('archive_date')
     else:
         form = FirstSectionForm()
-    return render(request, 'evacalc/skills_section.html', {'form':form})
+        now_rating = list(MyUser.objects.filter(email=request.user).values('number_of_ratings'))[0]['number_of_ratings']
+    return render(request, 'evacalc/skills_section.html', {'form':form,
+                                                           'now_rating':str(now_rating)})
 
 
 def skills_operations(form):
@@ -660,3 +695,8 @@ def update_model(username, grade_dict, job_id):
         sum_of_values = grade_dict['sum_of_values'],
         grade = grade_dict['grade'])
     job_update.save()
+
+def decrease_number_of_ratings(username):
+    rating_val = MyUser.objects.get(email=username)
+    rating_val.number_of_ratings = F('number_of_ratings')-1
+    rating_val.save()
