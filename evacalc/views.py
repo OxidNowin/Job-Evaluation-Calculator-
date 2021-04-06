@@ -31,6 +31,7 @@ def archive_date(request):
     elif request.method == "POST" and 'recalculate' in request.POST:
         number_of_ratings = list(MyUser.objects.filter(email=request.user).values('number_of_ratings'))[0]
         if number_of_ratings['number_of_ratings'] > 0:
+            decrease_number_of_ratings(request.user)
             job_id = list(request.POST.values())[1]
             job = list(JobEvaluation.objects.filter(id=job_id).values())[0]
             job.pop('created_date')
@@ -159,7 +160,6 @@ def archive_date(request):
             job_id = job['id']
             grade_result_dict = ast.literal_eval(form.cleaned_data['last_dict'])
             update_model(request.user, grade_result_dict, job_id)
-            decrease_number_of_ratings(request.user)
             return redirect('archive_date')
     now_rating = list(MyUser.objects.filter(email=request.user).values('number_of_ratings'))[0]['number_of_ratings']
     jobs_list = JobEvaluation.objects.order_by('-created_date').filter(user=request.user)
@@ -176,6 +176,7 @@ def archive_grade(request):
     elif request.method == "POST" and 'recalculate' in request.POST:
         number_of_ratings = list(MyUser.objects.filter(email=request.user).values('number_of_ratings'))[0]
         if number_of_ratings['number_of_ratings'] > 0:
+            decrease_number_of_ratings(request.user)
             job_id = list(request.POST.values())[1]
             job = list(JobEvaluation.objects.filter(id=job_id).values())[0]
             job.pop('created_date')
@@ -304,7 +305,6 @@ def archive_grade(request):
             job_id = job['id']
             grade_result_dict = ast.literal_eval(form.cleaned_data['last_dict'])
             update_model(request.user, grade_result_dict, job_id)
-            decrease_number_of_ratings(request.user)
             return redirect('archive_date')
     now_rating = list(MyUser.objects.filter(email=request.user).values('number_of_ratings'))[0]['number_of_ratings']
     jobs_list = JobEvaluation.objects.order_by('-grade').filter(user=request.user)
@@ -392,6 +392,7 @@ def skills_section(request):
             try:
                 result_dict_2, result_dict_3 = responsibility_operations(form)
                 grade_result_dict = grade_operations(result_dict_3)
+                decrease_number_of_ratings(request.user)
             except Exception:
                 return redirect('skills_section')
             else:
@@ -402,7 +403,6 @@ def skills_section(request):
         if form.is_valid():
             grade_result_dict = ast.literal_eval(form.cleaned_data['last_dict'])
             save_model(request.user, grade_result_dict)
-            decrease_number_of_ratings(request.user)
             return redirect('archive_date')
     else:
         form = FirstSectionForm()
